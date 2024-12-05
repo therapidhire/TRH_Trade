@@ -1,0 +1,57 @@
+/* Holding Styles */
+.holding-container {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .portfolio-value {
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #007bff; /* Blue color for total value */
+  }
+  
+  .holdings-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .holdings-table th, .holdings-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .holdings-table th {
+    background-color: #007bff; /* Blue background for header */
+    color: white;
+  }
+  
+  .holdings-table td {
+    background-color: #f8f8f8;
+  }
+  
+  /* Sell Button */
+  .sell-button {
+    background-color: #f57300; /* Orange for Sell */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sell-button:hover {
+    background-color: #e65a00; /* Darker orange on hover */
+  }
+  
+  .sell-button:active {
+    background-color: #cc4f00; /* Even darker orange on click */
+  }
+  

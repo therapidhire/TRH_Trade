@@ -1,0 +1,130 @@
+/* General Page Styling *//*  */
+.BuySellModelClass{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 20px;
+}
+/* Main container for the modal */
+.modal-container {
+  width: 100%;
+  max-width: 500px; /* Maximum width of the modal */
+  height: 450px; /* Fixed height */
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  overflow-y: auto; /* Scrollable content if overflow */
+  box-sizing: border-box;
+}
+
+/* Modal Header */
+.header {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Stock Info Styling */
+.stock-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Input group for labels and inputs */
+.input-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-size: 14px;
+  color: #555;
+  width: 40%; /* Label width */
+}
+
+.input-group input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 55%; /* Input field width */
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #007bff; /* Focused input border color */
+  outline: none;
+}
+
+/* Radio button group for Order Type and Validity */
+.radio-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.radio-group label {
+  font-size: 14px;
+  color: #555;
+}
+
+.radio-group div {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+}
+
+.radio-group input[type="radio"] {
+  margin-right: 5px;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.action-btn,
+.cancel-btn {
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  transition: opacity 0.3s ease;
+}
+
+.action-btn {
+  background-color: #f57300; /* Orange color for Buy/Sell */
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+  color: white;
+}
+
+.action-btn:hover,
+.cancel-btn:hover {
+  opacity: 0.85;
+}
