@@ -1,70 +1,189 @@
-# Getting Started with Create React App
+README: Step-by-Step Guide to Create and Run the Application
+This README provides a detailed step-by-step guide to set up and run the full-stack web application using ReactJS, NodeJS, MongoDB, and CSS/Bootstrap. Follow the instructions below to build and deploy the application.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. Prerequisites
+Ensure the following tools are installed on your system:
+Node.js: Version 16 or higher.
+MongoDB: Local or cloud instance (e.g., MongoDB Atlas).
+Git: For version control.
+VS Code: Or any preferred IDE.
+Postman: For API testing.
 
-## Available Scripts
+2. Project Setup
+Backend Setup
+Clone the repository:
+bash
+git clone <repository-url>
+cd backend
 
-In the project directory, you can run:
+Install dependencies:
+bash
+npm install
 
-### `npm start`
+Set up environment variables:
+Create a .env file in the backend folder.
+Add the following variables:
+text
+PORT=5000
+MONGO_URI=<your-mongodb-uri>
+JWT_SECRET=<your-secret-key>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Start the backend server:
+bash
+npm start
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Verify the backend is running at http://localhost:5000.
+Frontend Setup
+Navigate to the frontend folder:
+bash
+cd ../frontend
 
-### `npm test`
+Install dependencies:
+bash
+npm install
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Start the React development server:
+bash
+npm run dev
 
-### `npm run build`
+Open your browser and navigate to http://localhost:5173.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Folder Structure
+Backend Folder Structure
+text
+/backend
+|-- /controllers    # Business logic for APIs
+|-- /models         # MongoDB schemas
+|-- /routes         # API routes
+|-- /middlewares    # Authentication and authorization logic
+|-- /config         # Configuration files (e.g., database connection)
+|-- server.js       # Entry point for the backend application
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Frontend Folder Structure
+text
+/frontend/src
+|-- /components     # Reusable components (e.g., buttons, forms)
+|-- /pages          # Page-level components (e.g., login, dashboard)
+|-- /services       # API calls and utility functions
+|-- App.jsx         # Main application component
+|-- index.jsx       # Entry point for React app
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. Database Design
+Using MongoDB, create four collections:
+User_Master: Stores user details like UserId, UserName, Email, etc.
+Company_Master: Stores company-related data like CompanyId, CompanyName.
+User_Table: Tracks user-specific actions or data.
+Notification_Activity_Table: Logs notifications sent to users.
+Use schemas from the provided reference files (e.g., UserRoleMasterSchema and StockListSchema) as examples.
 
-### `npm run eject`
+5. API Endpoints
+Create an Excel sheet with details of all API endpoints. Example:
+Endpoint	Method	Payload	Response Type	Error Codes
+/api/users/login	POST	{ email, password }	JSON	401, 500
+/api/notifications/send	POST	{ userId, message }	JSON	400, 500
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+6. Authentication
+Implement JWT authentication in the backend.
+Protect routes using middleware to ensure only authorized users can access specific pages.
+Example middleware:
+javascript
+const jwt = require('jsonwebtoken');
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+const authenticate = (req, res, next) => {
+  const token = req.header('Authorization');
+  if (!token) return res.status(401).send('Access Denied');
+  
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (err) {
+    res.status(400).send('Invalid Token');
+  }
+};
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+module.exports = authenticate;
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+7. Role-Based Access Control
+Define roles (e.g., Admin, Supervisor) in the database and restrict access based on roles.
+Example:
+javascript
+const authorize = (roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).send('Access Forbidden');
+    }
+    next();
+  };
+};
 
-## Learn More
+8. Frontend Features
+Login Page
+Create a login form with fields for email and password.
+On successful login, redirect users to their dashboard based on their role.
+javascript
+import { useNavigate } from 'react-router-dom';
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+const LoginPage = () => {
+  const navigate = useNavigate();
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  const handleLogin = async () => {
+    // Perform login logic here...
+    navigate('/dashboard');
+  };
 
-### Code Splitting
+  return (
+    <form>
+      <input type="email" placeholder="Email" />
+      <input type="password" placeholder="Password" />
+      <button onClick={handleLogin}>Login</button>
+    </form>
+  );
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Dashboard
+Create private routes for different roles using React Router.
+Example:
+javascript
+import { Navigate } from 'react-router-dom';
 
-### Analyzing the Bundle Size
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/login" />;
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+9. Notifications
+Use a third-party service like Twilio or Skype API for sending notifications when users buy/sell stocks.
+Example with Twilio for WhatsApp:
+javascript
+const twilio = require('twilio');
+const client = new twilio(accountSid, authToken);
 
-### Making a Progressive Web App
+client.messages.create({
+  body: 'Stock purchased successfully!',
+  from: 'whatsapp:+14155238886',
+  to: 'whatsapp:+<user-phone-number>'
+});
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+10. Holdings Page
+Fetch holdings data from the provided URL (https://kite-demo.zerodha.com/holdings) and display it in a table.
+Example API call in React:
+javascript
+useEffect(() => {
+  fetch('https://kite-demo.zerodha.com/holdings')
+    .then((response) => response.json())
+    .then((data) => setHoldings(data));
+}, []);
 
-### Advanced Configuration
+11. Styling
+Use CSS or Bootstrap for styling components.
+Example with Bootstrap:
+xml
+<button className="btn btn-primary">Submit</button>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+12. Run Application
+Start MongoDB service locally or connect to MongoDB Atlas.
+Run backend server (npm start in /backend).
+Run frontend server (npm run dev in /frontend).
+Access the application at http://localhost:5173.
+This README provides a comprehensive guide to setting up and running your full-stack application!
