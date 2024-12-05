@@ -186,4 +186,4 @@ Start MongoDB service locally or connect to MongoDB Atlas.
 Run backend server (npm start in /backend).
 Run frontend server (npm run dev in /frontend).
 Access the application at http://localhost:5173.
-This README provides a comprehensive guide to setting up and running your full-stack application!
+This README provides a comprehensive guide to setting up and running your full-stack application.
