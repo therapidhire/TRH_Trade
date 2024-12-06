@@ -6,12 +6,14 @@ import BuySellModal from "./pages/BuySellModal/BuySellModal";
 import Holding from "./pages/Holding/Holding"; // Import the Holding component
 import Position from "./pages/Position/Positions";
 import Profile from "./pages/Profile/Profile";
+import Signup from "./pages/Signup/Signup";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/trade/:action/:stock" element={<BuySellModal />} />
         <Route path="/holdings" element={<Holding />} /> {/* Added the route for Holding */}

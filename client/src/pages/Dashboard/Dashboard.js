@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Form, Row, Col } from "react-bootstrap";
+import { Form, Row, Col } from "react-bootstrap";
 import Header from "../../components/Header/Header";
-import TableComponent from "../../components/Table/Table"; 
+import TableComponent from "../../components/Table/Table";
 
 const stocks = [
   { id: 1, name: "Apple", quantity: 50, price: 175.5 },
@@ -35,11 +35,16 @@ const Dashboard = () => {
   }, [stockNameFilter, priceRangeFilter]);
 
   const handleTrade = (action, stock) => {
+    if (!stock) {
+      console.error("Stock not provided for trading.");
+      return;
+    }
     navigate(`/trade/${action}/${stock.name}`);
   };
 
   const columns = ["Stock Name", "Current Price"];
-  const columnKeys = ["name", "price"]
+  const columnKeys = ["name", "price"];
+
   return (
     <>
       <Header />
@@ -101,12 +106,12 @@ const Dashboard = () => {
 
         {/* Stock Table */}
         <TableComponent
-            columns={columns}
-            columnKeys={columnKeys}
-            data={stocks}
-            buttonType="buy"
-            onButtonClick={handleTrade}
-          />
+          columns={columns}
+          columnKeys={columnKeys}
+          data={filteredStocks} // Pass filteredStocks here
+          buttonType="buy"
+          onButtonClick={handleTrade} // Make sure this receives the stock object
+        />
       </div>
     </>
   );
