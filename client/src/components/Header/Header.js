@@ -32,6 +32,11 @@ const Header = () => {
     }
   };
 
+  const logoutuser = () => {
+    localStorage.clear();  // Clear all items from localStorage
+    window.location.href = "/";  // Redirect to the homepage after logout
+  };
+
   const loadMoreNotifications = () => {
     const nextBatch = notifications.slice(
       currentIndex,
@@ -39,6 +44,25 @@ const Header = () => {
     );
     setVisibleNotifications((prev) => [...prev, ...nextBatch]);
     setCurrentIndex((prev) => prev + BATCH_SIZE);
+  };
+
+  // Check user role from localStorage (assumes the role is stored as 'role' in localStorage)
+  const userRole = localStorage.getItem("role");
+
+  // Function to map role to display name
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+      case "Admin":
+        return "Admin";
+      case "Super Admin":
+        return "Super Admin";
+      case "Supervisor":
+        return "Supervisor";
+      case "User":
+        return "User";
+      default:
+        return "Profile"; // Default case in case role is undefined
+    }
   };
 
   return (
@@ -63,32 +87,50 @@ const Header = () => {
               Positions
             </Link>
           </li>
-          <li className="nav-item notification-container">
-            <div className="notification-icon" onClick={handleIconClick}>
-              <span className="notification-badge">
-                {notifications.length}
-              </span>
-              🔔
-            </div>
-            {isDropdownOpen && (
-              <div
-                className="notification-dropdown"
-                onScroll={handleScroll}
-              >
-                {visibleNotifications.map((notif) => (
-                  <div key={notif.id} className="notification-item">
-                    {notif.message}
-                  </div>
-                ))}
-                {visibleNotifications.length < notifications.length && (
-                  <div className="loading-message">Loading more...</div>
-                )}
+
+          {/* Show notifications only for Admin */}
+          {userRole === "Admin" && (
+            <li className="nav-item notification-container">
+              <div className="notification-icon" onClick={handleIconClick}>
+                <span className="notification-badge">
+                  {notifications.length}
+                </span>
+                🔔
               </div>
-            )}
+              {isDropdownOpen && (
+                <div
+                  className="notification-dropdown"
+                  onScroll={handleScroll}
+                >
+                  {visibleNotifications.map((notif) => (
+                    <div key={notif.id} className="notification-item">
+                      {notif.message}
+                    </div>
+                  ))}
+                  {visibleNotifications.length < notifications.length && (
+                    <div className="loading-message">Loading more...</div>
+                  )}
+                </div>
+              )}
+            </li>
+          )}
+
+          <li className="nav-item">
+            <Link to="/history" className="nav-link">
+              History
+            </Link>
           </li>
+
+          {/* Display role-based name instead of static "Profile" */}
           <li className="nav-item">
             <Link to="/profile" className="nav-link">
-              Profile
+              {getRoleDisplayName(userRole)} {/* Dynamically displaying role */}
+            </Link>
+          </li>
+
+          <li className="nav-item">
+            <Link to="/" className="nav-link" onClick={logoutuser}>
+              Logout
             </Link>
           </li>
         </ul>

@@ -7,6 +7,7 @@ import Holding from "./pages/Holding/Holding"; // Import the Holding component
 import Position from "./pages/Position/Positions";
 import Profile from "./pages/Profile/Profile";
 import Signup from "./pages/Signup/Signup";
+import History from "./pages/History/History";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/holdings" element={<Holding />} /> {/* Added the route for Holding */}
         <Route path="/positions" element={<Position/>} />
         <Route path="/profile" element={<Profile/>} />
+        <Route path="/history" element={<History/>} />
       </Routes>
     </Router>
   );

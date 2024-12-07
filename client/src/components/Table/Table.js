@@ -1,54 +1,62 @@
 import React from "react";
 import { Table, Button } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { sortStocks } from "../../redux/slices/stocksSlice";
 
-const TableComponent = ({ columns,columnKeys, data, buttonType, onButtonClick }) => {
-  console.log("Columns:", columns); // Log columns to check their structure
-  console.log("Data:", data); // Log data to check its structure
+const TableComponent = ({ columns, columnKeys, data, buyButtonType, sellButtonType, onButtonClick }) => {
+  const dispatch = useDispatch();
+
+  const handleSort = (key) => {
+    dispatch(sortStocks({ key }));
+  };
 
   return (
     <Table striped bordered hover responsive>
       <thead>
         <tr>
           {columns.map((column, index) => (
-            <th key={index}>{column}</th>
+            <th
+              key={index}
+              onClick={() => handleSort(columnKeys[index])}
+              style={{ cursor: "pointer" }}
+            >
+              {column}
+            </th>
           ))}
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {data.length > 0 ? (
-          data.map((row, index) => (
-            <tr key={index}>
-              {columnKeys.map((column, columnIndex) => (
-                <td key={columnIndex}>
-                  {/* Ensure that the value exists and handle undefined */}
-                  {row[column] !== undefined ? row[column] : "N/A"}
-                </td>
+      {data.map((item, index) => (
+            <tr key={item.id}>
+              {columnKeys.map((key, idx) => (
+                <td key={idx}>{item[key]}</td>
               ))}
               <td>
-                <Button
-                  style={{
-                    backgroundColor: "#f57300",
-                    border: "none",
-                    fontWeight: "bold",
-                  }}
-                  onClick={() => onButtonClick(row)}
+                <button
+                  className="btn btn-primary me-2"
+                  onClick={() => onButtonClick(item, buyButtonType)}
                 >
-                  {buttonType === "sell" ? "Sell" : "Buy"}
-                </Button>
+                  {buyButtonType}
+                </button>
+                <button
+                  className="btn"
+                  style={{
+                    "background-color": "#f57300",
+                    "fontWeight":"bold",
+                    "color":"white"
+                  }}
+                  onClick={() => onButtonClick(item, sellButtonType)}
+                >
+                  {sellButtonType}
+                </button>
               </td>
             </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={columns.length + 1} className="text-center">
-              No data found matching the filters.
-            </td>
-          </tr>
-        )}
+          ))}
       </tbody>
     </Table>
   );
 };
 
 export default TableComponent;
+

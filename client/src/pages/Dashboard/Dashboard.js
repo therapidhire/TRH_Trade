@@ -1,49 +1,86 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Form, Row, Col } from "react-bootstrap";
+import { Form, Row, Col, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import TableComponent from "../../components/Table/Table";
-
-const stocks = [
-  { id: 1, name: "Apple", quantity: 50, price: 175.5 },
-  { id: 2, name: "Tesla", quantity: 30, price: 272.3 },
-  { id: 3, name: "Microsoft", quantity: 20, price: 315.0 },
-  { id: 4, name: "Amazon", quantity: 15, price: 144.7 },
-  { id: 5, name: "Google", quantity: 25, price: 137.6 },
-  { id: 6, name: "Meta", quantity: 40, price: 350.1 },
-  { id: 7, name: "NVIDIA", quantity: 10, price: 490.2 },
-  { id: 8, name: "Netflix", quantity: 35, price: 400.5 },
-  { id: 9, name: "Adobe", quantity: 18, price: 570.3 },
-  { id: 10, name: "Intel", quantity: 60, price: 34.2 },
-];
+import { setStocks, filterStocks } from "../../redux/slices/stocksSlice";
 
 const Dashboard = () => {
-  const [filteredStocks, setFilteredStocks] = useState(stocks);
-  const [stockNameFilter, setStockNameFilter] = useState("");
-  const [priceRangeFilter, setPriceRangeFilter] = useState({ min: 0, max: Infinity });
-  const [remainingMoney] = useState(5000); // Example: Money user has left after investment
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const filtered = stocks.filter(
-      (stock) =>
-        stock.name.toLowerCase().includes(stockNameFilter.toLowerCase()) &&
-        stock.price >= priceRangeFilter.min &&
-        stock.price <= priceRangeFilter.max
-    );
-    setFilteredStocks(filtered);
-  }, [stockNameFilter, priceRangeFilter]);
+  const stocks = useSelector((state) => state.stocks.filteredStocks || []);
+  const [stockNameFilter, setStockNameFilter] = useState("");
+  const [priceRangeFilter, setPriceRangeFilter] = useState({ min: 0, max: Infinity });
+  const [remainingMoney] = useState(5000); // Example: Remaining money after investments
 
-  const handleTrade = (action, stock) => {
-    if (!stock) {
-      console.error("Stock not provided for trading.");
-      return;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of items to show per page
+
+  useEffect(() => {
+    const fetchedStocks = [
+      { id: 1, name: "Apple", symbol: "AAPL", quantity: 50, price: 175.5 },
+      { id: 2, name: "Tesla", symbol: "TSLA", quantity: 30, price: 272.3 },
+      { id: 3, name: "Microsoft", symbol: "MSFT", quantity: 20, price: 315.0 },
+      { id: 4, name: "Amazon", symbol: "AMZN", quantity: 15, price: 144.7 },
+      { id: 5, name: "Google", symbol: "GOOGL", quantity: 25, price: 137.6 },
+      { id: 6, name: "Meta", symbol: "META", quantity: 40, price: 350.1 },
+      { id: 7, name: "NVIDIA", symbol: "NVDA", quantity: 10, price: 490.2 },
+      { id: 8, name: "Netflix", symbol: "NFLX", quantity: 35, price: 400.5 },
+      { id: 9, name: "Adobe", symbol: "ADBE", quantity: 18, price: 570.3 },
+      { id: 10, name: "Intel", symbol: "INTC", quantity: 60, price: 34.2 },
+    ];
+    dispatch(setStocks(fetchedStocks));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      filterStocks({
+        nameFilter: stockNameFilter,
+        priceRange: priceRangeFilter,
+      })
+    );
+  }, [stockNameFilter, priceRangeFilter, dispatch]);
+
+  const handleTrade = (stock, actionType) => {
+    // Action type can be "buy" or "sell"
+    if (actionType === "buy") {
+      localStorage.setItem("buy", JSON.stringify(stock));
+      navigate(`/trade/buy/${stock.name}`);
+    } else if (actionType === "sell") {
+      localStorage.setItem("sell", JSON.stringify(stock));
+      navigate(`/trade/sell/${stock.name}`);
     }
-    navigate(`/trade/${action}/${stock.name}`);
   };
 
-  const columns = ["Stock Name", "Current Price"];
-  const columnKeys = ["name", "price"];
+  const columns = ["Symbol", "Stock Name", "Current Price"];
+  const columnKeys = ["symbol", "name", "price"];
+
+  // Calculate which stocks to display based on the current page
+  const indexOfLastStock = currentPage * itemsPerPage;
+  const indexOfFirstStock = indexOfLastStock - itemsPerPage;
+  const currentStocks = stocks.slice(indexOfFirstStock, indexOfLastStock);
+
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Pagination buttons
+  const totalPages = Math.ceil(stocks.length / itemsPerPage);
+  const paginationItems = [];
+  for (let i = 1; i <= totalPages; i++) {
+    paginationItems.push(
+      <Pagination.Item
+        key={i}
+        active={i === currentPage}
+        onClick={() => handlePageChange(i)}
+      >
+        {i}
+      </Pagination.Item>
+    );
+  }
 
   return (
     <>
@@ -51,7 +88,6 @@ const Dashboard = () => {
       <div className="container mt-5">
         <h2 className="text-center mb-4">Stock Market Dashboard</h2>
 
-        {/* Filters */}
         <Form className="mb-4">
           <Row>
             <Col md={6}>
@@ -96,7 +132,6 @@ const Dashboard = () => {
           </Row>
         </Form>
 
-        {/* Summary Fields */}
         <div className="row mb-4 text-center">
           <div className="col-md-4">
             <strong>Remaining Money:</strong>
@@ -104,14 +139,18 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stock Table */}
         <TableComponent
           columns={columns}
           columnKeys={columnKeys}
-          data={filteredStocks} // Pass filteredStocks here
-          buttonType="buy"
-          onButtonClick={handleTrade} // Make sure this receives the stock object
+          data={currentStocks} // Display current page stocks
+          buyButtonType="buy"
+          sellButtonType="sell"
+          onButtonClick={handleTrade}
         />
+
+        <div className="d-flex justify-content-center mt-4">
+          <Pagination>{paginationItems}</Pagination>
+        </div>
       </div>
     </>
   );

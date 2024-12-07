@@ -1,21 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { postRequest } from "../../components/Axios/api"; // Import API functions
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (credentials.username === "user" && credentials.password === "password") {
+    try {
+      // Call the login API
+      // const response = await postRequest("/user/login", credentials);
+      const response = await postRequest("/users/login", credentials);
+
+      // Save token or user details in local storage
+      localStorage.setItem("token", response.data.token); // Assuming API returns a token
+      localStorage.setItem("userId", response.data.userId)
+      localStorage.setItem("role", response.data.roles); // Save email
+
+      // Navigate to dashboard
       navigate("/dashboard");
-    } else {
-      alert("Invalid credentials");
+    } catch (error) {
+      // Handle API error
+      setErrorMessage(error.message || "Login failed");
     }
   };
 
@@ -23,17 +36,18 @@ const Login = () => {
     <div className="container d-flex align-items-center justify-content-center vh-100">
       <div className="card shadow p-4" style={{ width: "100%", maxWidth: "400px" }}>
         <h3 className="text-center mb-4">Login</h3>
+        {errorMessage && <p className="text-danger text-center">{errorMessage}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="username" className="form-label">
-              Username
+            <label htmlFor="email" className="form-label">
+              email
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
+              id="email"
+              name="email"
               className="form-control"
-              value={credentials.username}
+              value={credentials.email}
               onChange={handleChange}
               required
             />
