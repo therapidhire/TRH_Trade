@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import tableReducer from './slices/tableSlice'; // Import your reducers here
+import tableReducer from './slices/tableSlice'; 
 import stocksReducer from './slices/stocksSlice';
 import holdingsReducer from './slices/holdingsSlice';
 import positionReducer from './slices/positionSlice';

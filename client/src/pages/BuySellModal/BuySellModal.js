@@ -10,7 +10,7 @@ const BuySellModal = () => {
 
   // Get stock details from localStorage based on the action (buy or sell)
   const stockData = JSON.parse(localStorage.getItem(action)); // 'action' will be either 'buy' or 'sell'
-  
+
   // For 'buy', we expect stock price, name, and quantity available
   const stockPrice = stockData?.price || 0;
   const stockName = stockData?.name || stock;
@@ -32,8 +32,19 @@ const BuySellModal = () => {
   // Handle quantity input change
   const handleQtyChange = (e) => {
     const newQty = e.target.value;
+
+    // Prevent negative or invalid inputs
+    if (newQty < 0 || newQty > availableQty) {
+      return;
+    }
+
     setQty(newQty);
     setTotalPrice(newQty * stockPrice);
+
+    if (action === "sell") {
+      // Dynamically update remaining stock for the sell action
+      setRemainingStock(availableQty - newQty);
+    }
   };
 
   // Handle total price input change
@@ -77,7 +88,9 @@ const BuySellModal = () => {
       <div className="BuySellModelClass">
         <div className="modal-container">
           <div className="modal-box">
-            <h2 className="modal-title">{action === "buy" ? "Buy" : "Sell"} {stockName}</h2>
+            <h2 className="modal-title">
+              {action === "buy" ? "Buy" : "Sell"} {stockName}
+            </h2>
             <div className="modal-content">
               <div className="stock-info">
                 <span className="stock-name">{stockName}</span>
@@ -149,6 +162,7 @@ const BuySellModal = () => {
               )}
 
               {/* For Sell Action */}
+              {/* For Sell Action */}
               {action === "sell" && (
                 <>
                   <div className="input-group">
@@ -159,7 +173,7 @@ const BuySellModal = () => {
                       value={qty}
                       onChange={handleQtyChange}
                       min="1"
-                      max={remainingStock}
+                      max={availableQty}
                     />
                   </div>
 
@@ -192,7 +206,9 @@ const BuySellModal = () => {
                   className="input-field description-field"
                   value={description}
                   onChange={handleDescriptionChange}
-                  placeholder={`Reason for ${action === "buy" ? "Buying" : "Selling"}`}
+                  placeholder={`Reason for ${
+                    action === "buy" ? "Buying" : "Selling"
+                  }`}
                   rows="4"
                 />
               </div>
@@ -200,15 +216,20 @@ const BuySellModal = () => {
               {/* Buttons */}
               <div className="actions">
                 <button
-                  className={`action-btn ${action === "buy" ? "buy-btn" : "sell-btn"}`}
+                  className={`action-btn ${
+                    action === "buy" ? "buy-btn" : "sell-btn"
+                  }`}
                   onClick={handleSubmit}
                 >
                   {action === "buy" ? "Buy" : "Sell"}
                 </button>
-                <button className="cancel-btn" onClick={() => {
-                  localStorage.removeItem(action);
-                  navigate("/dashboard")
-                }}>
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    localStorage.removeItem(action);
+                    navigate("/dashboard");
+                  }}
+                >
                   Cancel
                 </button>
               </div>

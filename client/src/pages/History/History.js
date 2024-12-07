@@ -43,9 +43,9 @@ const History = () => {
   const calculateProfitLoss = (purchasePrice, sellPrice) => {
     const profitLoss = sellPrice - purchasePrice;
     if (profitLoss > 0) {
-      return <span style={{ color: "green" }}>+${profitLoss.toFixed(2)}</span>;
+      return <span style={{ color: "green" }}>+{profitLoss.toFixed(2)}</span>;
     } else if (profitLoss < 0) {
-      return <span style={{ color: "red" }}>-${Math.abs(profitLoss).toFixed(2)}</span>;
+      return <span style={{ color: "red" }}>-{Math.abs(profitLoss).toFixed(2)}</span>;
     } else {
       return <span>No Profit/Loss</span>;
     }
@@ -88,9 +88,9 @@ const History = () => {
                   <tr key={index}>
                     <td>{transaction.stockSymbol}</td>
                     <td>{transaction.name}</td> {/* Corrected to display the name */}
-                    <td>${transaction.purchasePrice.toFixed(2)}</td>
+                    <td>{transaction.purchasePrice.toFixed(2)}</td>
                     <td>{formatDate(transaction.purchaseDate)}</td>
-                    <td>${transaction.sellPrice.toFixed(2)}</td>
+                    <td>{transaction.sellPrice.toFixed(2)}</td>
                     <td>{formatDate(transaction.sellDate)}</td>
                     <td>{calculateProfitLoss(transaction.purchasePrice, transaction.sellPrice)}</td>
                   </tr>

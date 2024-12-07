@@ -157,3 +157,359 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useSelector, useDispatch } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+// import { Form, Row, Col, Pagination } from "react-bootstrap";
+// import Header from "../../components/Header/Header";
+// import TableComponent from "../../components/Table/Table";
+// import { setStocks, filterStocks } from "../../redux/slices/stocksSlice";
+// import axios from "axios"; // Import Axios for API requests
+
+// const Dashboard = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+
+//   const stocks = useSelector((state) => state.stocks.filteredStocks || []);
+//   const [stockNameFilter, setStockNameFilter] = useState("");
+//   const [priceRangeFilter, setPriceRangeFilter] = useState({ min: 0, max: Infinity });
+//   const [remainingMoney] = useState(5000); // Example: Remaining money after investments
+
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const itemsPerPage = 5; // Number of items to show per page
+
+//   useEffect(() => {
+//     // Fetch stocks data from API
+//     const fetchStocks = async () => {
+//       try {
+//         const response = await axios.get("http://localhost:8080/api/stock/getStock");
+//         console.log("response---", response.data.data );
+//         const fetchedStocks = response.data.stocks; // Assuming the API returns an object with a 'stocks' array
+//         dispatch(setStocks(fetchedStocks)); // Save stocks to Redux store
+//       } catch (error) {
+//         console.error("Error fetching stocks:", error.message);
+//       }
+//     };
+
+//     fetchStocks();
+//   }, [dispatch]);
+
+//   useEffect(() => {
+//     dispatch(
+//       filterStocks({
+//         nameFilter: stockNameFilter,
+//         priceRange: priceRangeFilter,
+//       })
+//     );
+//   }, [stockNameFilter, priceRangeFilter, dispatch]);
+
+//   const handleTrade = (stock, actionType) => {
+//     // Action type can be "buy" or "sell"
+//     if (actionType === "buy") {
+//       localStorage.setItem("buy", JSON.stringify(stock));
+//       navigate(`/trade/buy/${stock.name}`);
+//     } else if (actionType === "sell") {
+//       localStorage.setItem("sell", JSON.stringify(stock));
+//       navigate(`/trade/sell/${stock.name}`);
+//     }
+//   };
+
+//   const columns = ["Symbol", "Stock Name", "Current Price"];
+//   const columnKeys = ["symbol", "name", "price"];
+
+//   // Calculate which stocks to display based on the current page
+//   const indexOfLastStock = currentPage * itemsPerPage;
+//   const indexOfFirstStock = indexOfLastStock - itemsPerPage;
+//   const currentStocks = stocks.slice(indexOfFirstStock, indexOfLastStock);
+
+//   // Handle page change
+//   const handlePageChange = (pageNumber) => {
+//     setCurrentPage(pageNumber);
+//   };
+
+//   // Pagination buttons
+//   const totalPages = Math.ceil(stocks.length / itemsPerPage);
+//   const paginationItems = [];
+//   for (let i = 1; i <= totalPages; i++) {
+//     paginationItems.push(
+//       <Pagination.Item
+//         key={i}
+//         active={i === currentPage}
+//         onClick={() => handlePageChange(i)}
+//       >
+//         {i}
+//       </Pagination.Item>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <Header />
+//       <div className="container mt-5">
+//         <h2 className="text-center mb-4">Stock Market Dashboard</h2>
+
+//         <Form className="mb-4">
+//           <Row>
+//             <Col md={6}>
+//               <Form.Group>
+//                 <Form.Label>Filter by Stock Name</Form.Label>
+//                 <Form.Control
+//                   type="text"
+//                   placeholder="Enter stock name"
+//                   value={stockNameFilter}
+//                   onChange={(e) => setStockNameFilter(e.target.value)}
+//                 />
+//               </Form.Group>
+//             </Col>
+//             <Col md={6}>
+//               <Form.Group>
+//                 <Form.Label>Filter by Stock Price Range</Form.Label>
+//                 <div className="d-flex">
+//                   <Form.Control
+//                     type="number"
+//                     placeholder="Min Price"
+//                     onChange={(e) =>
+//                       setPriceRangeFilter((prev) => ({
+//                         ...prev,
+//                         min: parseFloat(e.target.value) || 0,
+//                       }))
+//                     }
+//                   />
+//                   <Form.Control
+//                     type="number"
+//                     placeholder="Max Price"
+//                     className="ms-2"
+//                     onChange={(e) =>
+//                       setPriceRangeFilter((prev) => ({
+//                         ...prev,
+//                         max: parseFloat(e.target.value) || Infinity,
+//                       }))
+//                     }
+//                   />
+//                 </div>
+//               </Form.Group>
+//             </Col>
+//           </Row>
+//         </Form>
+
+//         <div className="row mb-4 text-center">
+//           <div className="col-md-4">
+//             <strong>Remaining Money:</strong>
+//             <p className="text-warning">${remainingMoney.toFixed(2)}</p>
+//           </div>
+//         </div>
+
+//         <TableComponent
+//           columns={columns}
+//           columnKeys={columnKeys}
+//           data={currentStocks} // Display current page stocks
+//           buyButtonType="buy"
+//           sellButtonType="sell"
+//           onButtonClick={handleTrade}
+//         />
+
+//         <div className="d-flex justify-content-center mt-4">
+//           <Pagination>{paginationItems}</Pagination>
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useSelector, useDispatch } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+// import { Form, Row, Col, Pagination } from "react-bootstrap";
+// import Header from "../../components/Header/Header";
+// import TableComponent from "../../components/Table/Table";
+// import { setStocks, filterStocks } from "../../redux/slices/stocksSlice";
+// import axios from "axios"; // Import Axios for API requests
+
+// const Dashboard = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+
+//   const stocks = useSelector((state) => state.stocks.filteredStocks || []);
+//   const [stockNameFilter, setStockNameFilter] = useState("");
+//   const [priceRangeFilter, setPriceRangeFilter] = useState({ min: 0, max: Infinity });
+//   const [remainingMoney] = useState(5000); // Example: Remaining money after investments
+
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const itemsPerPage = 5; // Number of items to show per page
+
+//   useEffect(() => {
+//     // Fetch stocks data from API
+//     const fetchStocks = async () => {
+//       try {
+//           const response = await axios.get('http://localhost:8080/api/stock/getStock');
+          
+//           const stockList = response.data.data.Stocklist;  // Array of stock objects with name and symbol
+//           const stockDetails = response.data.data.Stockdetails;  // Array of stock details with price
+          
+//           // Create a map for stockDetails to easily find price by symbol
+//           const stockDetailsMap = stockDetails.reduce((acc, detail) => {
+//               acc[detail.symbol] = detail.price;  // Store price by symbol
+//               return acc;
+//           }, {});
+  
+//           // Map over stockList and merge name, symbol, and price
+//           const combinedStocks = stockList.map(stock => {
+//               const price = stockDetailsMap[stock.symbol];  // Get the price from stockDetails using symbol
+//               return {
+//                   name: stock.name,
+//                   symbol: stock.symbol,
+//                   price: price || 'N/A'  // If no price is found, default to 'N/A'
+//               };
+//           });
+  
+//           console.log(combinedStocks);
+//           // Now you have an array of stocks with name, symbol, and price
+  
+//       } catch (error) {
+//           console.error('Error fetching stock data:', error);
+//       }
+//   };
+  
+  
+  
+//     fetchStocks();
+//   }, [dispatch]);
+
+//   useEffect(() => {
+//     dispatch(
+//       filterStocks({
+//         nameFilter: stockNameFilter,
+//         priceRange: priceRangeFilter,
+//       })
+//     );
+//   }, [stockNameFilter, priceRangeFilter, dispatch]);
+
+//   const handleTrade = (stock, actionType) => {
+//     // Action type can be "buy" or "sell"
+//     if (actionType === "buy") {
+//       localStorage.setItem("buy", JSON.stringify(stock));
+//       navigate(`/trade/buy/${stock.name}`);
+//     } else if (actionType === "sell") {
+//       localStorage.setItem("sell", JSON.stringify(stock));
+//       navigate(`/trade/sell/${stock.name}`);
+//     }
+//   };
+
+//   const columns = ["Symbol", "Stock Name", "Current Price"];
+//   const columnKeys = ["symbol", "name", "price"];
+
+//   // Calculate which stocks to display based on the current page
+//   const indexOfLastStock = currentPage * itemsPerPage;
+//   const indexOfFirstStock = indexOfLastStock - itemsPerPage;
+//   const currentStocks = stocks.slice(indexOfFirstStock, indexOfLastStock);
+
+//   // Handle page change
+//   const handlePageChange = (pageNumber) => {
+//     setCurrentPage(pageNumber);
+//   };
+
+//   // Pagination buttons
+//   const totalPages = Math.ceil(stocks.length / itemsPerPage);
+//   const paginationItems = [];
+//   for (let i = 1; i <= totalPages; i++) {
+//     paginationItems.push(
+//       <Pagination.Item
+//         key={i}
+//         active={i === currentPage}
+//         onClick={() => handlePageChange(i)}
+//       >
+//         {i}
+//       </Pagination.Item>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <Header />
+//       <div className="container mt-5">
+//         <h2 className="text-center mb-4">Stock Market Dashboard</h2>
+
+//         <Form className="mb-4">
+//           <Row>
+//             <Col md={6}>
+//               <Form.Group>
+//                 <Form.Label>Filter by Stock Name</Form.Label>
+//                 <Form.Control
+//                   type="text"
+//                   placeholder="Enter stock name"
+//                   value={stockNameFilter}
+//                   onChange={(e) => setStockNameFilter(e.target.value)}
+//                 />
+//               </Form.Group>
+//             </Col>
+//             <Col md={6}>
+//               <Form.Group>
+//                 <Form.Label>Filter by Stock Price Range</Form.Label>
+//                 <div className="d-flex">
+//                   <Form.Control
+//                     type="number"
+//                     placeholder="Min Price"
+//                     onChange={(e) =>
+//                       setPriceRangeFilter((prev) => ({
+//                         ...prev,
+//                         min: parseFloat(e.target.value) || 0,
+//                       }))
+//                     }
+//                   />
+//                   <Form.Control
+//                     type="number"
+//                     placeholder="Max Price"
+//                     className="ms-2"
+//                     onChange={(e) =>
+//                       setPriceRangeFilter((prev) => ({
+//                         ...prev,
+//                         max: parseFloat(e.target.value) || Infinity,
+//                       }))
+//                     }
+//                   />
+//                 </div>
+//               </Form.Group>
+//             </Col>
+//           </Row>
+//         </Form>
+
+//         <div className="row mb-4 text-center">
+//           <div className="col-md-4">
+//             <strong>Remaining Money:</strong>
+//             <p className="text-warning">${remainingMoney.toFixed(2)}</p>
+//           </div>
+//         </div>
+
+//         <TableComponent
+//           columns={columns}
+//           columnKeys={columnKeys}
+//           data={currentStocks} // Display current page stocks
+//           buyButtonType="buy"
+//           sellButtonType="sell"
+//           onButtonClick={handleTrade}
+//         />
+
+//         <div className="d-flex justify-content-center mt-4">
+//           <Pagination>{paginationItems}</Pagination>
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default Dashboard;
