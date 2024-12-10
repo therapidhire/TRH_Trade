@@ -1,49 +1,136 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Form, Row, Col } from "react-bootstrap";
+import { Form, Row, Col, Table, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
-import TableComponent from "../../components/Table/Table";
-
-const stocks = [
-  { id: 1, name: "Apple", quantity: 50, price: 175.5 },
-  { id: 2, name: "Tesla", quantity: 30, price: 272.3 },
-  { id: 3, name: "Microsoft", quantity: 20, price: 315.0 },
-  { id: 4, name: "Amazon", quantity: 15, price: 144.7 },
-  { id: 5, name: "Google", quantity: 25, price: 137.6 },
-  { id: 6, name: "Meta", quantity: 40, price: 350.1 },
-  { id: 7, name: "NVIDIA", quantity: 10, price: 490.2 },
-  { id: 8, name: "Netflix", quantity: 35, price: 400.5 },
-  { id: 9, name: "Adobe", quantity: 18, price: 570.3 },
-  { id: 10, name: "Intel", quantity: 60, price: 34.2 },
-];
+import { setStocks, filterStocks } from "../../redux/slices/stocksSlice";
+import axios from "axios";
 
 const Dashboard = () => {
-  const [filteredStocks, setFilteredStocks] = useState(stocks);
-  const [stockNameFilter, setStockNameFilter] = useState("");
-  const [priceRangeFilter, setPriceRangeFilter] = useState({ min: 0, max: Infinity });
-  const [remainingMoney] = useState(5000); // Example: Money user has left after investment
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const filtered = stocks.filter(
-      (stock) =>
-        stock.name.toLowerCase().includes(stockNameFilter.toLowerCase()) &&
-        stock.price >= priceRangeFilter.min &&
-        stock.price <= priceRangeFilter.max
-    );
-    setFilteredStocks(filtered);
-  }, [stockNameFilter, priceRangeFilter]);
+  // Redux state
+  const stocks = useSelector((state) => state.stocks.filteredStocks || []);
 
-  const handleTrade = (action, stock) => {
-    if (!stock) {
-      console.error("Stock not provided for trading.");
-      return;
+  // Local state
+  const [stockNameFilter, setStockNameFilter] = useState("");
+  const [mapStock, setMapStock] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+
+  const itemsPerPage = 5;
+  const remainingMoney = 5000; // Example remaining amount for display
+  const userId = localStorage.getItem("userId");
+
+  // Fetch stock data
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        // Fetch all stocks
+        const stockResponse = await axios.get(
+          "http://localhost:8080/api/stock/getStock"
+        );
+        const stockData = stockResponse?.data?.data || [];
+        console.log("stockData in dashboard:- ", stockData);
+        // Map and structure stock data
+        const formattedStocks = stockData.map((stockEntry) => ({
+          symbol: stockEntry.stockListData.symbol || "N/A",
+          name: stockEntry.stockListData.stockName || "N/A",
+          isinNumber: stockEntry.stockListData.isin_Num,
+        }));
+
+        // Fetch current user's stock details
+        const userStockResponse = await axios.get(
+          `http://localhost:8080/api/transaction/getBuyDetailsByUserId/${userId}`
+        );
+        const userStocks = userStockResponse?.data.data || [];
+        console.log("userStockResponse", userStockResponse.data.data);
+
+        // Map stocks to determine sellable stocks
+        const stockQuantities = formattedStocks.reduce((acc, stock) => {
+          const isSellable = userStocks.some(
+            (userStock) => userStock.isin_Num === stock.isinNumber
+          );
+          return { ...acc, [stock.isinNumber]: isSellable };
+        }, {});
+
+        setMapStock(stockQuantities);
+        dispatch(setStocks(formattedStocks));
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+      }
+    };
+
+    fetchStocks();
+  }, [dispatch, userId]);
+
+  // Filter stocks by name
+  useEffect(() => {
+    dispatch(filterStocks({ nameFilter: stockNameFilter }));
+  }, [stockNameFilter, dispatch]);
+
+  // Handle trade actions (buy/sell)
+  const handleTrade = async (stock, actionType) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/stock/getStockByisinNum/${stock.isinNumber}`
+      );
+      const stockData = response?.data?.data;
+      console.log("single stockData", response);
+      if (stockData == null) {
+        localStorage.setItem(actionType, JSON.stringify(stock));
+      } else {
+        localStorage.setItem(actionType, JSON.stringify(stockData));
+      }
+      navigate(`/trade/${actionType}/${stock.name}`);
+    } catch (error) {
+      console.error(`Error handling ${actionType} for stock:`, error);
     }
-    navigate(`/trade/${action}/${stock.name}`);
   };
 
-  const columns = ["Stock Name", "Current Price"];
-  const columnKeys = ["name", "price"];
+  // Sort stocks
+  const handleSort = (key) => {
+    const direction =
+      sortConfig.key === key && sortConfig.direction === "ascending"
+        ? "descending"
+        : "ascending";
+    setSortConfig({ key, direction });
+
+    const sortedStocks = [...stocks].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "ascending" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "ascending" ? 1 : -1;
+      return 0;
+    });
+
+    dispatch(setStocks(sortedStocks));
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(stocks.length / itemsPerPage);
+  const currentStocks = stocks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
+
+  const renderPagination = () => {
+    return (
+      <Pagination>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <Pagination.Item
+            key={i + 1}
+            active={i + 1 === currentPage}
+            onClick={() => handlePageChange(i + 1)}
+          >
+            {i + 1}
+          </Pagination.Item>
+        ))}
+      </Pagination>
+    );
+  };
+  console.log("mapStock", mapStock);
 
   return (
     <>
@@ -51,67 +138,118 @@ const Dashboard = () => {
       <div className="container mt-5">
         <h2 className="text-center mb-4">Stock Market Dashboard</h2>
 
-        {/* Filters */}
-        <Form className="mb-4">
-          <Row>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Filter by Stock Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter stock name"
-                  value={stockNameFilter}
-                  onChange={(e) => setStockNameFilter(e.target.value)}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Filter by Stock Price Range</Form.Label>
-                <div className="d-flex">
+        <div className="d-flex justify-content-between mb-4">
+          <Form className="w-50">
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Filter by Stock Name</Form.Label>
                   <Form.Control
-                    type="number"
-                    placeholder="Min Price"
-                    onChange={(e) =>
-                      setPriceRangeFilter((prev) => ({
-                        ...prev,
-                        min: parseFloat(e.target.value) || 0,
-                      }))
-                    }
+                    type="text"
+                    placeholder="Enter stock name"
+                    value={stockNameFilter}
+                    onChange={(e) => setStockNameFilter(e.target.value)}
                   />
-                  <Form.Control
-                    type="number"
-                    placeholder="Max Price"
-                    className="ms-2"
-                    onChange={(e) =>
-                      setPriceRangeFilter((prev) => ({
-                        ...prev,
-                        max: parseFloat(e.target.value) || Infinity,
-                      }))
-                    }
-                  />
-                </div>
-              </Form.Group>
-            </Col>
-          </Row>
-        </Form>
-
-        {/* Summary Fields */}
-        <div className="row mb-4 text-center">
-          <div className="col-md-4">
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+          <div>
             <strong>Remaining Money:</strong>
-            <p className="text-warning">${remainingMoney.toFixed(2)}</p>
+            <p className="text-success">${remainingMoney.toFixed(2)}</p>
           </div>
         </div>
 
-        {/* Stock Table */}
-        <TableComponent
-          columns={columns}
-          columnKeys={columnKeys}
-          data={filteredStocks} // Pass filteredStocks here
-          buttonType="buy"
-          onButtonClick={handleTrade} // Make sure this receives the stock object
-        />
+        {/* <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th onClick={() => handleSort("symbol")} style={{ cursor: "pointer" }}>
+                Symbol {sortConfig.key === "symbol" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+              </th>
+              <th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
+                Stock Name {sortConfig.key === "name" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentStocks.map((stock) => (
+              <tr key={stock.isinNumber}>
+                <td>{stock.symbol}</td>
+                <td>{stock.name}</td>
+                <td>
+                  <button className="btn btn-primary me-2" onClick={() => handleTrade(stock, "buy")}>
+                    Buy
+                  </button>
+                  <button
+                    className="btn"
+                    style={{ backgroundColor: "#f57300", fontWeight: "bold", color: "white" }}
+                    onClick={() => handleTrade(stock, "sell")}
+                    disabled={!mapStock[stock.isinNumber]}
+                  >
+                    Sell
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table> */}
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th
+                onClick={() => handleSort("symbol")}
+                style={{ cursor: "pointer" }}
+              >
+                Symbol{" "}
+                {sortConfig.key === "symbol" &&
+                  (sortConfig.direction === "ascending" ? "↑" : "↓")}
+              </th>
+              <th
+                onClick={() => handleSort("name")}
+                style={{ cursor: "pointer" }}
+              >
+                Stock Name{" "}
+                {sortConfig.key === "name" &&
+                  (sortConfig.direction === "ascending" ? "↑" : "↓")}
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentStocks.map((stock) => (
+              <tr key={stock.isinNumber}>
+                <td>{stock.symbol}</td>
+                <td>{stock.name}</td>
+                <td>
+                  <button
+                    className="btn btn-primary me-2"
+                    onClick={() => handleTrade(stock, "buy")}
+                  >
+                    Buy
+                  </button>
+                  {mapStock[stock.isinNumber] && (
+                    <button
+                      className="btn"
+                      style={{
+                        backgroundColor: "#f57300",
+                        fontWeight: "bold",
+                        color: "white",
+                      }}
+                      onClick={() => handleTrade(stock, "sell")}
+                    >
+                      Sell
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+
+        <div className="d-flex justify-content-center mt-4">
+          {renderPagination()}
+        </div>
       </div>
     </>
   );

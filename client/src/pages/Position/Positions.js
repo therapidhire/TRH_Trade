@@ -1,80 +1,242 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button, Table, Spinner, Alert } from "react-bootstrap";
+import { Form, Row, Col, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
-import TableComponent from "../../components/Table/Table";
+import { setHoldings, filterHoldings } from "../../redux/slices/holdingsSlice";
+import axios from "axios";
 
-const Position = () => {
-  const [stocks, setStocks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const Positions = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Simulate fetching stocks data with dummy data
+  const holdings = useSelector(
+    (state) => state.holdings.filteredHoldings || []
+  );
+  const [holdingNameFilter, setHoldingNameFilter] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+  const [quantityRangeFilter, setQuantityRangeFilter] = useState({
+    min: 0,
+    max: Infinity,
+  });
+  const [remainingMoney] = useState(5000);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const itemsPerPage = 5;
+
+  const userId = localStorage.getItem("userId");
+
   useEffect(() => {
-    const fetchStocks = () => {
+    const fetchPositions = async () => {
       try {
-        // Simulating a delay to mimic API call
-        setTimeout(() => {
-          const dummyData = [
-            { id: 1, name: "Apple", quantity: 50, price: 175.5 },
-            { id: 2, name: "Tesla", quantity: 30, price: 272.3 },
-            { id: 3, name: "Microsoft", quantity: 20, price: 315.0 },
-            { id: 4, name: "Amazon", quantity: 15, price: 144.7 },
-            { id: 5, name: "Google", quantity: 25, price: 137.6 },
-            { id: 6, name: "Meta", quantity: 40, price: 350.1 },
-            { id: 7, name: "NVIDIA", quantity: 10, price: 490.2 },
-            { id: 8, name: "Netflix", quantity: 35, price: 400.5 },
-            { id: 9, name: "Adobe", quantity: 18, price: 570.3 },
-            { id: 10, name: "Intel", quantity: 60, price: 34.2 },
-          ];
-          setStocks(dummyData);
-          setLoading(false);
-        }, 1000);
-      } catch (err) {
-        setError("Failed to fetch stocks. Please try again later.");
-        setLoading(false);
+        const response = await axios.get(
+          `http://localhost:8080/api/getAll/${userId}`,
+          {
+            params: { _id: userId },
+          }
+        );
+
+        if (response.data && response.data.holdings) {
+          const filteredHoldings = response.data.holdings.filter((holding) => {
+            const ageInDays = calculateAge(holding.createdAt);
+            const extractedNumber = parseInt(ageInDays[0], 10);
+            return extractedNumber <= 1;
+          });
+
+          const transformedHoldings = filteredHoldings.map((Position) => ({
+            symbol: Position.stockSymbol || "N/A",
+            name: Position.stockName || "N/A",
+            quantity: Position.stockQty || 0,
+            price: Position.stockPrice || 0,
+            totalPrice: (Position.stockQty || 0) * (Position.stockPrice || 0), // Calculate Total Amount
+            isinNumber: Position.isin_Num,
+            age: calculateAge(Position.createdAt),
+          }));
+
+          dispatch(setHoldings(transformedHoldings));
+        }
+      } catch (error) {
+        console.error("Error fetching holdings data:", error);
       }
     };
 
-    fetchStocks();
-  }, []);
+    fetchPositions();
+  }, [dispatch, userId]);
 
-  // Handle redirect to sell page
-  const handleSell = (stock) => {
-    navigate(`/trade/sell/${stock.name}`);
+  useEffect(() => {
+    dispatch(
+      filterHoldings({
+        nameFilter: holdingNameFilter,
+        quantityRange: quantityRangeFilter,
+      })
+    );
+  }, [holdingNameFilter, quantityRangeFilter, dispatch]);
+
+  const handleTrade = (stock, actionType) => {
+    if (actionType === "buy") {
+      localStorage.setItem("buy", JSON.stringify(stock));
+      navigate(`/trade/buy/${stock.name}`);
+    } else if (actionType === "sell") {
+      localStorage.setItem("sell", JSON.stringify(stock));
+      navigate(`/trade/sell/${stock.name}`);
+    }
   };
 
-  const columns = ["Stock Name", "Quantity", "Current Price"];
-  const columnKeys = ["name", "quantity", "price"]
+  const calculateAge = (purchaseDate) => {
+    const currentDate = new Date();
+    const purchase = new Date(purchaseDate);
+    const ageInDays = Math.ceil(
+      (currentDate - purchase) / (1000 * 60 * 60 * 24)
+    );
+    return `${ageInDays} days`;
+  };
 
+  const columns = [
+    "Symbol",
+    "Position Name",
+    "Quantity",
+    "Buy Price",
+    "Total Amount",
+    "Buying Age",
+  ];
+  const columnKeys = [
+    "symbol",
+    "name",
+    "quantity",
+    "price",
+    "totalPrice",
+    "age",
+  ];
+
+  const sortedHoldings = [...holdings];
+
+  if (sortColumn) {
+    sortedHoldings.sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  }
+
+  const indexOfLastHolding = currentPage * itemsPerPage;
+  const indexOfFirstHolding = indexOfLastHolding - itemsPerPage;
+  const currentHoldings = sortedHoldings.slice(
+    indexOfFirstHolding,
+    indexOfLastHolding
+  );
+
+  const totalPages = Math.ceil(sortedHoldings.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleSort = (columnKey) => {
+    if (sortColumn === columnKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(columnKey);
+      setSortOrder("asc");
+    }
+  };
 
   return (
     <>
       <Header />
       <div className="container mt-5">
-        <h2 className="text-center mb-4">Your Stocks</h2>
-        {loading ? (
-          <div className="d-flex justify-content-center">
-            <Spinner animation="border" variant="primary" />
-          </div>
-        ) : error ? (
-          <Alert variant="danger">{error}</Alert>
-        ) : stocks.length > 0 ? (
-            <TableComponent
-            columns={columns}
-            columnKeys={columnKeys}
-            data={stocks}
-            buttonType="sell"
-            onButtonClick={handleSell}
+        <h2 className="text-center mb-4">Your Position</h2>
+
+        <Row>
+          <Col sm={6}>
+            <Form.Control
+              type="text"
+              placeholder="Filter by Position name"
+              value={holdingNameFilter}
+              onChange={(e) => setHoldingNameFilter(e.target.value)}
+              className="mb-5"
+            />
+          </Col>
+        </Row>
+
+        {/* Simple HTML Table */}
+        <table className="table table-bordered">
+          <thead>
+            <tr>
+              {columns.map((column, index) => (
+                <th
+                  key={index}
+                  onClick={() => handleSort(columnKeys[index])}
+                  style={{ cursor: "pointer" }}
+                >
+                  {column}{" "}
+                  {sortColumn === columnKeys[index] &&
+                    (sortOrder === "asc" ? "↑" : "↓")}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {currentHoldings.map((holding, index) => (
+              <tr key={index}>
+                <td>{holding.symbol}</td>
+                <td>{holding.name}</td>
+                <td>{holding.quantity}</td>
+                <td>{holding.price}</td>
+                <td>{holding.totalPrice}</td>{" "}
+                {/* Format to 2 decimal places */}
+                <td>{holding.age}</td>
+                <td>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleTrade(holding, "buy")}
+                  >
+                    Buy
+                  </button>
+                  <button
+                    className="btn m-2"
+                    style={{
+                      backgroundColor: "#f57300",
+                      fontWeight: "bold",
+                      color: "white",
+                    }}
+                    onClick={() => handleTrade(holding, "sell")}
+                  >
+                    Sell
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Pagination */}
+        <Pagination>
+          <Pagination.Prev
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
           />
-        ) : (
-          <Alert variant="info">No stocks found for this user.</Alert>
-        )}
+          {[...Array(totalPages)].map((_, index) => (
+            <Pagination.Item
+              key={index + 1}
+              active={index + 1 === currentPage}
+              onClick={() => handlePageChange(index + 1)}
+            >
+              {index + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
       </div>
     </>
   );
 };
 
-export default Position;
+export default Positions;
