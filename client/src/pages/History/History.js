@@ -1,37 +1,80 @@
+
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "../../components/Header/Header";
 import { Pagination } from "react-bootstrap";
+import './History.css'
+// import axios from "axios"; // Uncomment when using API
+
+const userId = localStorage.getItem("userId");
 
 const History = () => {
   const [stockHistory, setStockHistory] = useState([]);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(5);
 
   useEffect(() => {
+    // Dummy Data for Development
+    const dummyData = [
+      {
+        stockSymbol: "AAPL",
+        name: "Apple",
+        purchasePrice: 150,
+        purchaseQty: 10,
+        sellPrice: 180,
+        sellQty: 10,
+        purchaseDate: "2024-01-10",
+        sellDate: "2024-02-10",
+      },
+      {
+        stockSymbol: "GOOG",
+        name: "Google",
+        purchasePrice: 2000,
+        purchaseQty: 5,
+        sellPrice: 2500,
+        sellQty: 5,
+        purchaseDate: "2024-03-05",
+        sellDate: "2024-04-01",
+      },
+      {
+        stockSymbol: "TSLA",
+        name: "Tesla",
+        purchasePrice: 700,
+        purchaseQty: 3,
+        sellPrice: 650,
+        sellQty: 3,
+        purchaseDate: "2024-06-15",
+        sellDate: "2024-07-15",
+      },
+    ];
+    setStockHistory(dummyData);
+
+    // API Integration (Comment dummy data above and uncomment below when using API)
+    /*
     const fetchStockHistory = async () => {
       try {
-        const dummyData = [
-          { stockSymbol: "AAPL", name: "Apple", purchasePrice: 150, purchaseDate: "2024-01-10", sellPrice: 180, sellDate: "2024-02-10" },
-          { stockSymbol: "GOOG", name: "Google", purchasePrice: 2000, purchaseDate: "2024-03-05", sellPrice: 2500, sellDate: "2024-04-01" },
-          { stockSymbol: "TSLA", name: "Tesla", purchasePrice: 700, purchaseDate: "2024-06-15", sellPrice: 650, sellDate: "2024-07-15" },
-          { stockSymbol: "AMZN", name: "Amazon", purchasePrice: 1000, purchaseDate: "2024-02-20", sellPrice: 1200, sellDate: "2024-03-20" },
-          { stockSymbol: "MSFT", name: "Microsoft", purchasePrice: 200, purchaseDate: "2024-04-10", sellPrice: 250, sellDate: "2024-05-10" },
-          { stockSymbol: "NFLX", name: "Netflix", purchasePrice: 400, purchaseDate: "2024-07-10", sellPrice: 350, sellDate: "2024-08-01" },
-          { stockSymbol: "META", name: "Meta", purchasePrice: 300, purchaseDate: "2024-06-05", sellPrice: 330, sellDate: "2024-07-05" },
-          { stockSymbol: "NVDA", name: "NVIDIA", purchasePrice: 500, purchaseDate: "2024-08-10", sellPrice: 600, sellDate: "2024-09-10" },
-          { stockSymbol: "AMD", name: "AMD", purchasePrice: 250, purchaseDate: "2024-09-15", sellPrice: 300, sellDate: "2024-10-15" },
-          { stockSymbol: "BABA", name: "Alibaba", purchasePrice: 80, purchaseDate: "2024-10-01", sellPrice: 90, sellDate: "2024-11-01" },
-        ];
-
-        setStockHistory(dummyData);
+        const response = await axios.get(
+          `http://localhost:8080/api/stock/history/getHistory/${userId}`
+        );
+        const res = response.data.data;
+        const filteredData = res.map((history) => ({
+          stockSymbol: history.stockSymbol,
+          name: history.stockName,
+          purchasePrice: history.buyPrice,
+          purchaseQty: history.buyQty,
+          sellPrice: history.sellPrice,
+          sellQty: history.sellQty,
+          purchaseDate: history.buyDate,
+          sellDate: history.sellDate,
+        }));
+        setStockHistory(filteredData);
       } catch (err) {
         setError("Failed to fetch stock history.");
       }
     };
-
     fetchStockHistory();
+    */
   }, []);
 
   const formatDate = (dateString) => {
@@ -40,15 +83,16 @@ const History = () => {
     return date.toLocaleDateString("en-GB", options);
   };
 
-  const calculateProfitLoss = (purchasePrice, sellPrice) => {
-    const profitLoss = sellPrice - purchasePrice;
-    if (profitLoss > 0) {
-      return <span style={{ color: "green" }}>+{profitLoss.toFixed(2)}</span>;
-    } else if (profitLoss < 0) {
-      return <span style={{ color: "red" }}>-{Math.abs(profitLoss).toFixed(2)}</span>;
-    } else {
-      return <span>No Profit/Loss</span>;
-    }
+  const calculateProfitLoss = (purchasePrice, purchaseQty, sellPrice, sellQty) => {
+    const purchaseAmount = purchasePrice * purchaseQty;
+    const sellAmount = sellPrice * sellQty;
+    const profitLoss = sellAmount - purchaseAmount;
+    const profitLossPercentage = ((profitLoss / purchaseAmount) * 100).toFixed(2);
+
+    return {
+      profitLoss,
+      profitLossPercentage,
+    };
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -62,9 +106,10 @@ const History = () => {
   const totalPages = Math.ceil(stockHistory.length / itemsPerPage);
 
   return (
-    <div>
+    <div >
       <Header />
-      <div className="container mt-5">
+      <div className="uperHistoryContainer">
+      <div className="historyContainer">
         <h3 className="text-center mb-4">Stock Purchase & Sale History</h3>
 
         {error && <p className="text-danger">{error}</p>}
@@ -76,28 +121,52 @@ const History = () => {
                 <th>Symbol</th>
                 <th>Stock Name</th>
                 <th>Purchase Price</th>
-                <th>Purchase Date</th>
+                <th>Purchase Qty</th>
+                <th>Purchase Amount</th>
                 <th>Sell Price</th>
+                <th>Sell Qty</th>
+                <th>Sell Amount</th>
+                <th>Purchase Date</th>
                 <th>Sell Date</th>
                 <th>Profit/Loss</th>
+                <th>Profit/Loss (%)</th>
               </tr>
             </thead>
             <tbody>
               {currentData.length > 0 ? (
-                currentData.map((transaction, index) => (
-                  <tr key={index}>
-                    <td>{transaction.stockSymbol}</td>
-                    <td>{transaction.name}</td> {/* Corrected to display the name */}
-                    <td>{transaction.purchasePrice.toFixed(2)}</td>
-                    <td>{formatDate(transaction.purchaseDate)}</td>
-                    <td>{transaction.sellPrice.toFixed(2)}</td>
-                    <td>{formatDate(transaction.sellDate)}</td>
-                    <td>{calculateProfitLoss(transaction.purchasePrice, transaction.sellPrice)}</td>
-                  </tr>
-                ))
+                currentData.map((transaction, index) => {
+                  const { profitLoss, profitLossPercentage } = calculateProfitLoss(
+                    transaction.purchasePrice,
+                    transaction.purchaseQty,
+                    transaction.sellPrice,
+                    transaction.sellQty
+                  );
+                  return (
+                    <tr key={index}>
+                      <td>{transaction.stockSymbol}</td>
+                      <td>{transaction.name}</td>
+                      <td>{transaction.purchasePrice}</td>
+                      <td>{transaction.purchaseQty}</td>
+                      <td>{(transaction.purchasePrice * transaction.purchaseQty).toFixed(2)}</td>
+                      <td>{transaction.sellPrice}</td>
+                      <td>{transaction.sellQty}</td>
+                      <td>{(transaction.sellPrice * transaction.sellQty).toFixed(2)}</td>
+                      <td>{formatDate(transaction.purchaseDate)}</td>
+                      <td>{formatDate(transaction.sellDate)}</td>
+                      <td style={{ color: profitLoss >= 0 ? "green" : "red" }}>
+                        {profitLoss >= 0 ? "+" : ""}
+                        {profitLoss.toFixed(2)}
+                      </td>
+                      <td style={{ color: profitLoss >= 0 ? "green" : "red" }}>
+                        {profitLossPercentage >= 0 ? "+" : ""}
+                        {profitLossPercentage}%
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="7" className="text-center">
+                  <td colSpan="12" className="text-center">
                     No history available.
                   </td>
                 </tr>
@@ -125,6 +194,7 @@ const History = () => {
             disabled={currentPage === totalPages}
           />
         </Pagination>
+      </div>
       </div>
     </div>
   );

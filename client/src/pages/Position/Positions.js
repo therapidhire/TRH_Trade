@@ -1,23 +1,77 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Spinner, Alert, Pagination, Table } from "react-bootstrap";
-import { fetchStocks, sortStocks } from "../../redux/slices/positionSlice";
-import Header from "../../components/Header/Header";
 import { useNavigate } from "react-router-dom";
+import { Form, Row, Col, Pagination } from "react-bootstrap";
+import Header from "../../components/Header/Header";
+import { setHoldings, filterHoldings } from "../../redux/slices/holdingsSlice";
+import axios from "axios";
 
-const Position = () => {
+const Positions = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { stocks, loading, error, sortConfig } = useSelector(
-    (state) => state.position
-  );
 
+  const holdings = useSelector(
+    (state) => state.holdings.filteredHoldings || []
+  );
+  const [holdingNameFilter, setHoldingNameFilter] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+  const [quantityRangeFilter, setQuantityRangeFilter] = useState({
+    min: 0,
+    max: Infinity,
+  });
+  const [remainingMoney] = useState(5000);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
   const itemsPerPage = 5;
-  const [currentPage, setCurrentPage] = React.useState(1);
+
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    dispatch(fetchStocks());
-  }, [dispatch]);
+    const fetchPositions = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/getAll/${userId}`,
+          {
+            params: { _id: userId },
+          }
+        );
+
+        if (response.data && response.data.holdings) {
+          const filteredHoldings = response.data.holdings.filter((holding) => {
+            const ageInDays = calculateAge(holding.createdAt);
+            const extractedNumber = parseInt(ageInDays[0], 10);
+            return extractedNumber <= 1;
+          });
+
+          const transformedHoldings = filteredHoldings.map((Position) => ({
+            symbol: Position.stockSymbol || "N/A",
+            name: Position.stockName || "N/A",
+            quantity: Position.stockQty || 0,
+            price: Position.stockPrice || 0,
+            totalPrice: (Position.stockQty || 0) * (Position.stockPrice || 0), // Calculate Total Amount
+            isinNumber: Position.isin_Num,
+            age: calculateAge(Position.createdAt),
+          }));
+
+          dispatch(setHoldings(transformedHoldings));
+        }
+      } catch (error) {
+        console.error("Error fetching holdings data:", error);
+      }
+    };
+
+    fetchPositions();
+  }, [dispatch, userId]);
+
+  useEffect(() => {
+    dispatch(
+      filterHoldings({
+        nameFilter: holdingNameFilter,
+        quantityRange: quantityRangeFilter,
+      })
+    );
+  }, [holdingNameFilter, quantityRangeFilter, dispatch]);
 
   const handleTrade = (stock, actionType) => {
     if (actionType === "buy") {
@@ -32,184 +86,157 @@ const Position = () => {
   const calculateAge = (purchaseDate) => {
     const currentDate = new Date();
     const purchase = new Date(purchaseDate);
-    const diffInDays = Math.floor(
+    const ageInDays = Math.ceil(
       (currentDate - purchase) / (1000 * 60 * 60 * 24)
     );
-    return `${diffInDays} days`;
+    return `${ageInDays} days`;
   };
 
-  const handleSort = (key) => {
-    dispatch(sortStocks({ key }));
+  const columns = [
+    "Symbol",
+    "Position Name",
+    "Quantity",
+    "Buy Price",
+    "Total Amount",
+    "Buying Age",
+  ];
+  const columnKeys = [
+    "symbol",
+    "name",
+    "quantity",
+    "price",
+    "totalPrice",
+    "age",
+  ];
+
+  const sortedHoldings = [...holdings];
+
+  if (sortColumn) {
+    sortedHoldings.sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  }
+
+  const indexOfLastHolding = currentPage * itemsPerPage;
+  const indexOfFirstHolding = indexOfLastHolding - itemsPerPage;
+  const currentHoldings = sortedHoldings.slice(
+    indexOfFirstHolding,
+    indexOfLastHolding
+  );
+
+  const totalPages = Math.ceil(sortedHoldings.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
-  const indexOfLastStock = currentPage * itemsPerPage;
-  const indexOfFirstStock = indexOfLastStock - itemsPerPage;
-  const currentStocks = stocks.slice(indexOfFirstStock, indexOfLastStock);
-
-  const totalPages = Math.ceil(stocks.length / itemsPerPage);
-
-  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
+  const handleSort = (columnKey) => {
+    if (sortColumn === columnKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(columnKey);
+      setSortOrder("asc");
+    }
+  };
 
   return (
     <>
       <Header />
       <div className="container mt-5">
-        <h2 className="text-center mb-4">Your Stocks</h2>
+        <h2 className="text-center mb-4">Your Position</h2>
 
-        {/* {loading ? (
-          <div className="d-flex justify-content-center">
-            <Spinner animation="border" variant="primary" />
-          </div>
-        ) : error ? (
-          <Alert variant="danger">{error}</Alert>
-        ) : stocks.length > 0 ? ( */}
-        <>
-          {/* <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort("symbol")} style={{ cursor: "pointer" }}>
-                    Symbol
-                  </th>
-                  <th onClick={() => handleSort("name")} style={{ cursor: "pointer" }}>
-                    Stock Name
-                  </th>
-                  <th onClick={() => handleSort("quantity")} style={{ cursor: "pointer" }}>
-                    Quantity
-                  </th>
-                  <th onClick={() => handleSort("price")} style={{ cursor: "pointer" }}>
-                    Current Price
-                  </th>
-                  <th onClick={() => handleSort("purchaseDate")} style={{ cursor: "pointer" }}>
-                    Age
-                  </th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentStocks.map((stock) => (
-                  <tr key={stock.id}>
-                    <td>{stock.symbol}</td>
-                    <td>{stock.name}</td>
-                    <td>{stock.quantity}</td>
-                    <td>{stock.price.toFixed(2)}</td>
-                    <td>{calculateAge(stock.purchaseDate)}</td>
-                    <td>
-                      <Button variant="primary" onClick={() => handleTrade(stock, "buy")}>
-                        Buy
-                      </Button>{" "}
-                      <Button
-                        style={{
-                          backgroundColor: "#f57300",
-                          fontWeight: "bold",
-                          color: "white",
-                          border: "none",
-                        }}
-                        onClick={() => handleTrade(stock, "sell")}
-                      >
-                        Sell
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table> */}
-          <Table striped bordered hover>
-            <thead>
-              <tr>
+        <Row>
+          <Col sm={6}>
+            <Form.Control
+              type="text"
+              placeholder="Filter by Position name"
+              value={holdingNameFilter}
+              onChange={(e) => setHoldingNameFilter(e.target.value)}
+              className="mb-5"
+            />
+          </Col>
+        </Row>
+
+        {/* Simple HTML Table */}
+        <table className="table table-bordered">
+          <thead>
+            <tr>
+              {columns.map((column, index) => (
                 <th
-                  onClick={() => handleSort("symbol")}
+                  key={index}
+                  onClick={() => handleSort(columnKeys[index])}
                   style={{ cursor: "pointer" }}
                 >
-                  Symbol
+                  {column}{" "}
+                  {sortColumn === columnKeys[index] &&
+                    (sortOrder === "asc" ? "↑" : "↓")}
                 </th>
-                <th
-                  onClick={() => handleSort("name")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Stock Name
-                </th>
-                <th
-                  onClick={() => handleSort("quantity")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Quantity
-                </th>
-                <th
-                  onClick={() => handleSort("price")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Current Price
-                </th>
-                <th
-                  onClick={() => handleSort("purchaseDate")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Age
-                </th>
-                <th>Total Price</th> {/* Add Total Price column */}
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentStocks.map((stock) => (
-                <tr key={stock.id}>
-                  <td>{stock.symbol}</td>
-                  <td>{stock.name}</td>
-                  <td>{stock.quantity}</td>
-                  <td>{stock.price.toFixed(2)}</td>
-                  <td>{calculateAge(stock.purchaseDate)}</td>
-                  <td>{(stock.quantity * stock.price).toFixed(2)}</td>{" "}
-                  {/* Calculate Total Price */}
-                  <td>
-                    <Button
-                      variant="primary"
-                      onClick={() => handleTrade(stock, "buy")}
-                    >
-                      Buy
-                    </Button>{" "}
-                    <Button
-                      style={{
-                        backgroundColor: "#f57300",
-                        fontWeight: "bold",
-                        color: "white",
-                        border: "none",
-                      }}
-                      onClick={() => handleTrade(stock, "sell")}
-                    >
-                      Sell
-                    </Button>
-                  </td>
-                </tr>
               ))}
-            </tbody>
-          </Table>
-
-          <Pagination>
-            <Pagination.Prev
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            />
-            {[...Array(totalPages)].map((_, index) => (
-              <Pagination.Item
-                key={index + 1}
-                active={index + 1 === currentPage}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </Pagination.Item>
+            </tr>
+          </thead>
+          <tbody>
+            {currentHoldings.map((holding, index) => (
+              <tr key={index}>
+                <td>{holding.symbol}</td>
+                <td>{holding.name}</td>
+                <td>{holding.quantity}</td>
+                <td>{holding.price}</td>
+                <td>{holding.totalPrice}</td>{" "}
+                {/* Format to 2 decimal places */}
+                <td>{holding.age}</td>
+                <td>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleTrade(holding, "buy")}
+                  >
+                    Buy
+                  </button>
+                  <button
+                    className="btn m-2"
+                    style={{
+                      backgroundColor: "#f57300",
+                      fontWeight: "bold",
+                      color: "white",
+                    }}
+                    onClick={() => handleTrade(holding, "sell")}
+                  >
+                    Sell
+                  </button>
+                </td>
+              </tr>
             ))}
-            <Pagination.Next
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            />
-          </Pagination>
-        </>
-        {/* // ) : (
-        //   <Alert variant="info">No stocks found for this user.</Alert>
-        // )} */}
+          </tbody>
+        </table>
+
+        {/* Pagination */}
+        <Pagination>
+          <Pagination.Prev
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
+          {[...Array(totalPages)].map((_, index) => (
+            <Pagination.Item
+              key={index + 1}
+              active={index + 1 === currentPage}
+              onClick={() => handlePageChange(index + 1)}
+            >
+              {index + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
       </div>
     </>
   );
 };
 
-export default Position;
+export default Positions;

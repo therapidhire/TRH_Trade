@@ -18,9 +18,9 @@ const stocksSlice = createSlice({
       const { nameFilter, priceRange } = action.payload;
       state.filteredStocks = state.stocks.filter(
         (stock) =>
-          stock.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-          stock.price >= priceRange.min &&
-          stock.price <= priceRange.max
+          stock.name.toLowerCase().includes(nameFilter.toLowerCase()) 
+          // stock.price >= priceRange.min &&
+          // stock.price <= priceRange.max
       );
     },
     sortStocks(state, action) {

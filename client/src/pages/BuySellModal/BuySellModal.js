@@ -1,85 +1,134 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./BuySellModal.css";
 import Header from "../../components/Header/Header";
 
 const BuySellModal = () => {
-  const { action, stock } = useParams();
-  const location = useLocation();
+  const { action, stock } = useParams(); // Fetch the action (buy/sell) and stock name from URL params
   const navigate = useNavigate();
 
-  // Get stock details from localStorage based on the action (buy or sell)
-  const stockData = JSON.parse(localStorage.getItem(action)); // 'action' will be either 'buy' or 'sell'
+  const stockData = JSON.parse(localStorage.getItem(action)); // Get stock data from localStorage based on action
 
-  // For 'buy', we expect stock price, name, and quantity available
-  const stockPrice = stockData?.price || 0;
-  const stockName = stockData?.name || stock;
-  const availableQty = stockData?.quantity || 0;
+  console.log("stock data-----", stockData);
+  const stockName = stockData?.stockName || stockData?.name; // Fallback to stock name if not found in localStorage
+  const availableQty = stockData?.stockQty || stockData?.quantity;
+  const isinNumber = stockData?.isin_Num || stockData?.isinNumber; // Retrieve isinNumber from stockData
+  const symbol = stockData?.stockSymbol || stockData?.symbol; // Retrieve symbol from stockData
 
-  const [qty, setQty] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [stockPrice, setStockPrice] = useState(""); // Initially empty
+  const [qty, setQty] = useState(""); // Initially empty
+  const [totalPrice, setTotalPrice] = useState(""); // Initially empty
   const [remainingStock, setRemainingStock] = useState(availableQty);
   const [description, setDescription] = useState("");
-  const [accountType, setAccountType] = useState("personal");
+  const [accountType, setAccountType] = useState("corp");
 
   useEffect(() => {
     if (action === "sell") {
-      // If it's a sell action, set the remaining stock quantity from localStorage
       setRemainingStock(availableQty);
     }
   }, [action, availableQty]);
 
-  // Handle quantity input change
   const handleQtyChange = (e) => {
     const newQty = e.target.value;
-
-    // Prevent negative or invalid inputs
-    if (newQty < 0 || newQty > availableQty) {
-      return;
-    }
+    // if (newQty < 0 || newQty > availableQty) return;
 
     setQty(newQty);
-    setTotalPrice(newQty * stockPrice);
-
+    if (stockPrice !== "") {
+      setTotalPrice(newQty * stockPrice); // Recalculate total price when qty changes
+    }
     if (action === "sell") {
-      // Dynamically update remaining stock for the sell action
-      setRemainingStock(availableQty - newQty);
+      if(availableQty - newQty < 0){
+        alert("You don't have enough stock to sell");
+        setStockPrice("");
+        setQty("");
+        setTotalPrice("");
+        // setRemainingStock(availableQty)
+        navigate("/dashboard"); 
+      }
+      setRemainingStock(availableQty - newQty); // Decrease remaining stock for selling action
     }
   };
 
-  // Handle total price input change
   const handleTotalPriceChange = (e) => {
     const newTotalPrice = e.target.value;
     setTotalPrice(newTotalPrice);
-    setQty(newTotalPrice / stockPrice);
+    if (stockPrice !== "") {
+      setQty(newTotalPrice / stockPrice); // Recalculate quantity if total price changes
+    }
   };
 
-  // Handle account type change
+  const handlePriceChange = (e) => {
+    const newPrice = e.target.value;
+    setStockPrice(newPrice);
+    if (qty !== "") {
+      setTotalPrice(qty * newPrice); // Recalculate total price when stock price changes
+    }
+  };
+
   const handleAccountChange = (e) => {
     setAccountType(e.target.value);
   };
 
-  // Handle description input change
   const handleDescriptionChange = (e) => {
     setDescription(e.target.value);
   };
 
-  // Handle form submission
-  const handleSubmit = () => {
-    if (action === "buy") {
-      alert(`Buying ${qty} shares of ${stockName} at price ₹${stockPrice}`);
-      localStorage.removeItem("buy"); // Clear the "buy" key after the transaction
-    } else if (action === "sell") {
-      if (qty > remainingStock) {
-        alert("You don't have enough stock to sell!");
-        return;
-      }
-      alert(`Selling ${qty} shares of ${stockName} at price ₹${stockPrice}`);
-      localStorage.removeItem("sell"); // Clear the "sell" key after the transaction
-    }
+  const handleSubmit = async () => {
+    console.log("buysellmodel symbol and isinnumber---", symbol);
+    console.log("buysellmodel symbol and isinnumber---", isinNumber);
+    const endpoint =
+      action === "buy"
+        ? "http://localhost:8080/api/transaction/postBuy"
+        : "http://localhost:8080/api/transaction/postSale";
 
-    // Navigate to the dashboard
-    navigate("/dashboard");
+    const payload = {
+      stockSymbol: symbol,
+      stockName,
+      stockQty: parseInt(qty, 10), // Ensure quantity is an integer
+      stockPrice: parseFloat(stockPrice), // Ensure price is a float
+      accountType,
+      description: description.trim(), // Trim whitespace for cleaner input
+      isin_Num: isinNumber, // Use fetched ISIN number
+      userId: localStorage.getItem("userId") || "", // Fetch userId from localStorage
+    };
+
+    console.log("Payload:", payload);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("response--", response);
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("Error from server:", error);
+        throw new Error(`Failed to ${action === "buy" ? "buy" : "sell"} stock`);
+      }
+
+      const result = await response.json();
+      console.log(`${action === "buy" ? "Buy" : "Sell"} Success:`, result);
+
+      alert(
+        `${
+          action === "buy" ? "Bought" : "Sold"
+        } ${qty} shares of ${stockName} at ₹${stockPrice} successfully!`
+      );
+
+      localStorage.removeItem(action);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Transaction failed:", error.message);
+      alert(
+        `Error: Unable to ${
+          action === "buy" ? "buy" : "sell"
+        } the stock. Please try again.`
+      );
+    }
   };
 
   return (
@@ -89,119 +138,61 @@ const BuySellModal = () => {
         <div className="modal-container">
           <div className="modal-box">
             <h2 className="modal-title">
-              {action === "buy" ? "Buy" : "Sell"} {stockName}
+              {action === "buy" ? "Buy" : "Sell"} Stock
             </h2>
             <div className="modal-content">
               <div className="stock-info">
-                <span className="stock-name">{stockName}</span>
-                <span className="stock-price">₹{stockPrice}</span>
+                <span className="stock-name m-4">{stockName}</span>
               </div>
+              <div className="d-flex flex-column">
+                <div className="input-group">
+                  <label className="input-label">Account Type</label>
+                  <select
+                    className="w-50 input-field"
+                    value={accountType}
+                    onChange={handleAccountChange}
+                  >
+                    <option value="personal">Personal Account</option>
+                    <option value="corp">Corporate Account</option>
+                    <option value="huf">HUF Account</option>
+                  </select>
+                </div>
 
-              {/* Account Type Options */}
-              <div className="input-group account-type-group">
-                <label className="input-label">Account Type</label>
-                <div className="account-type-options">
-                  <label>
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="personal"
-                      checked={accountType === "personal"}
-                      onChange={handleAccountChange}
-                    />
-                    Personal Ac
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="corp"
-                      checked={accountType === "corp"}
-                      onChange={handleAccountChange}
-                    />
-                    Corp Ac
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="huf"
-                      checked={accountType === "huf"}
-                      onChange={handleAccountChange}
-                    />
-                    HUF Ac
-                  </label>
+                <div className="input-group">
+                  <label className="input-label">Qty.</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    value={qty}
+                    onChange={handleQtyChange}
+                    // min="1"
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label className="input-label">Price</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    value={stockPrice}
+                    onChange={handlePriceChange}
+                    placeholder="Enter stock price"
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label className="input-label">Total Amount</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    value={totalPrice}
+                    onChange={handleTotalPriceChange}
+                    placeholder="Enter total price"
+                  />
                 </div>
               </div>
-
-              {/* For Buy Action */}
-              {action === "buy" && (
-                <>
-                  <div className="input-group">
-                    <label className="input-label">Qty.</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      value={qty}
-                      onChange={handleQtyChange}
-                      min="1"
-                    />
-                  </div>
-
-                  <div className="input-group">
-                    <label className="input-label">Total Price</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      value={totalPrice}
-                      onChange={handleTotalPriceChange}
-                      placeholder="Enter total price"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* For Sell Action */}
-              {/* For Sell Action */}
-              {action === "sell" && (
-                <>
-                  <div className="input-group">
-                    <label className="input-label">Qty.</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      value={qty}
-                      onChange={handleQtyChange}
-                      min="1"
-                      max={availableQty}
-                    />
-                  </div>
-
-                  <div className="input-group">
-                    <label className="input-label">Total Price</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      value={totalPrice}
-                      onChange={handleTotalPriceChange}
-                      placeholder="Enter total price"
-                    />
-                  </div>
-
-                  <div className="input-group">
-                    <label className="input-label">Remaining Stock</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      value={remainingStock}
-                      disabled
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* Reason for action */}
               <div className="input-group">
+                <label className="input-label">Description</label>
                 <textarea
                   className="input-field description-field"
                   value={description}
@@ -213,7 +204,18 @@ const BuySellModal = () => {
                 />
               </div>
 
-              {/* Buttons */}
+              {action === "sell" && (
+                <div className="input-group">
+                  <label className="input-label">Remaining Stock</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    value={remainingStock}
+                    disabled
+                  />
+                </div>
+              )}
+
               <div className="actions">
                 <button
                   className={`action-btn ${
@@ -225,6 +227,9 @@ const BuySellModal = () => {
                 </button>
                 <button
                   className="cancel-btn"
+                  style={{
+                    backgroundColor:"black"
+                  }}
                   onClick={() => {
                     localStorage.removeItem(action);
                     navigate("/dashboard");
