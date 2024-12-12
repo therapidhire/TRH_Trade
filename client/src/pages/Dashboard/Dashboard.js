@@ -304,8 +304,10 @@ const Dashboard = () => {
 
   // Handle trade actions (buy/sell)
   const handleTrade = async (stock, actionType) => {
+
+    console.log("stock in das:-- ", stock);
     try {
-      const response = await axios.get(`http://localhost:8080/api/stock-transactions/${stock.stockId}`);
+      const response = await axios.get(`http://localhost:8080/api/stocks/${stock.stockId}`);
       const stockData = response?.data;
 
       console.log("Single Stock Details in Dashboard:- ", stockData)

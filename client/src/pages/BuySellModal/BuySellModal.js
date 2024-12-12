@@ -2,132 +2,119 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./BuySellModal.css";
 import Header from "../../components/Header/Header";
+import axios from "axios";
 
 const BuySellModal = () => {
-  const { action, stock } = useParams(); // Fetch the action (buy/sell) and stock name from URL params
+  const { action, stock } = useParams(); // Fetch action (buy/sell) and stock name from URL params
   const navigate = useNavigate();
+  const [singleStock, setSingleStock] = useState({});
+  const [availableQty, setAvailableQty] = useState();
 
   const stockData = JSON.parse(localStorage.getItem(action)); // Get stock data from localStorage based on action
+  const stockId = stockData?._id;
+  const userId = localStorage.getItem("userId");
+  // const availableQty = stockData?.Quantity || 0;
 
-  console.log("stock data-----", stockData);
-  const stockName = stockData?.stockName || stockData?.name; // Fallback to stock name if not found in localStorage
-  const availableQty = stockData?.stockQty || stockData?.quantity;
-  const isinNumber = stockData?.isin_Num || stockData?.isinNumber; // Retrieve isinNumber from stockData
-  const symbol = stockData?.stockSymbol || stockData?.symbol; // Retrieve symbol from stockData
-
-  const [stockPrice, setStockPrice] = useState(""); // Initially empty
-  const [qty, setQty] = useState(""); // Initially empty
-  const [totalPrice, setTotalPrice] = useState(""); // Initially empty
+  const [stockPrice, setStockPrice] = useState("");
+  const [qty, setQty] = useState("");
+  const [totalPrice, setTotalPrice] = useState("");
   const [remainingStock, setRemainingStock] = useState(availableQty);
   const [description, setDescription] = useState("");
-  const [accountType, setAccountType] = useState("corp");
+  const [accountType, setAccountType] = useState("Corporate Account");
 
   useEffect(() => {
-    if (action === "sell") {
-      setRemainingStock(availableQty);
-    }
-  }, [action, availableQty]);
+    const fetchStockDetails = async () => {
+      try {
+        const stockResponse = await axios.get(
+          `http://localhost:8080/api/stock-transactions/${stockId}`
+        );
+
+        console.log("stock response for sell and buy", stockResponse.data)
+        setAvailableQty(stockResponse.data.Quantity)
+        setSingleStock(stockResponse.data);
+      } catch (error) {
+        console.error("Error fetching stock details:", error);
+      }
+    };
+
+    if (stockId) fetchStockDetails();
+    if (action === "sell") setRemainingStock(availableQty);
+  }, [stockId, action, availableQty]);
 
   const handleQtyChange = (e) => {
-    const newQty = e.target.value;
-    // if (newQty < 0 || newQty > availableQty) return;
-
+    const newQty = Number(e.target.value);
     setQty(newQty);
-    if (stockPrice !== "") {
-      setTotalPrice(newQty * stockPrice); // Recalculate total price when qty changes
-    }
-    if (action === "sell") {
-      if(availableQty - newQty < 0){
-        alert("You don't have enough stock to sell");
-        setStockPrice("");
-        setQty("");
-        setTotalPrice("");
-        // setRemainingStock(availableQty)
-        navigate("/dashboard"); 
-      }
-      setRemainingStock(availableQty - newQty); // Decrease remaining stock for selling action
-    }
-  };
 
-  const handleTotalPriceChange = (e) => {
-    const newTotalPrice = e.target.value;
-    setTotalPrice(newTotalPrice);
     if (stockPrice !== "") {
-      setQty(newTotalPrice / stockPrice); // Recalculate quantity if total price changes
+      setTotalPrice(newQty * stockPrice);
+    }
+
+    if (action === "sell" && newQty > availableQty) {
+      alert("You don't have enough stock to sell");
+      resetForm();
+    } else if (action === "sell") {
+      setRemainingStock(availableQty - newQty);
     }
   };
 
   const handlePriceChange = (e) => {
-    const newPrice = e.target.value;
+    const newPrice = Number(e.target.value);
     setStockPrice(newPrice);
+
     if (qty !== "") {
-      setTotalPrice(qty * newPrice); // Recalculate total price when stock price changes
+      setTotalPrice(qty * newPrice);
     }
   };
 
-  const handleAccountChange = (e) => {
-    setAccountType(e.target.value);
+  const handleTotalPriceChange = (e) => {
+    const newTotalPrice = Number(e.target.value);
+    setTotalPrice(newTotalPrice);
+
+    if (stockPrice !== "") {
+      setQty(newTotalPrice / stockPrice);
+    }
   };
 
-  const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
+  const handleAccountChange = (e) => setAccountType(e.target.value);
+  const handleDescriptionChange = (e) => setDescription(e.target.value);
+
+  const resetForm = () => {
+    setStockPrice("");
+    setQty("");
+    setTotalPrice("");
+    setRemainingStock(availableQty);
   };
 
   const handleSubmit = async () => {
-    console.log("buysellmodel symbol and isinnumber---", symbol);
-    console.log("buysellmodel symbol and isinnumber---", isinNumber);
-    const endpoint =
-      action === "buy"
-        ? "http://localhost:8080/api/transaction/postBuy"
-        : "http://localhost:8080/api/transaction/postSale";
+    const endpoint = "http://localhost:8080/api/stock-transactions";
 
     const payload = {
-      stockSymbol: symbol,
-      stockName,
-      stockQty: parseInt(qty, 10), // Ensure quantity is an integer
-      stockPrice: parseFloat(stockPrice), // Ensure price is a float
-      accountType,
-      description: description.trim(), // Trim whitespace for cleaner input
-      isin_Num: isinNumber, // Use fetched ISIN number
-      userId: localStorage.getItem("userId") || "", // Fetch userId from localStorage
+      StockId: stockId,
+      UserId: userId,
+      TransactionType: action,
+      Price: stockPrice,
+      Quantity: qty,
+      AccountType: accountType,
+      Reason: description,
+      CreatedBy:userId
     };
 
-    console.log("Payload:", payload);
-
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await axios.post(endpoint, payload);
 
-      console.log("response--", response);
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Error from server:", error);
-        throw new Error(`Failed to ${action === "buy" ? "buy" : "sell"} stock`);
-      }
-
-      const result = await response.json();
-      console.log(`${action === "buy" ? "Buy" : "Sell"} Success:`, result);
+      console.log(`${action === "buy" ? "Buy" : "Sell"} Success:`, response.data);
 
       alert(
         `${
           action === "buy" ? "Bought" : "Sold"
-        } ${qty} shares of ${stockName} at ₹${stockPrice} successfully!`
+        } ${qty} shares of ${singleStock?.StockId?.StockName || "stock"} at ₹${stockPrice} successfully!`
       );
 
       localStorage.removeItem(action);
       navigate("/dashboard");
     } catch (error) {
-      console.error("Transaction failed:", error.message);
-      alert(
-        `Error: Unable to ${
-          action === "buy" ? "buy" : "sell"
-        } the stock. Please try again.`
-      );
+      console.error("Transaction failed:", error.response?.data || error.message);
+      alert(`Error: Unable to ${action}. Please try again.`);
     }
   };
 
@@ -142,7 +129,9 @@ const BuySellModal = () => {
             </h2>
             <div className="modal-content">
               <div className="stock-info">
-                <span className="stock-name m-4">{stockName}</span>
+                <span className="stock-name m-4">
+                  {singleStock?.StockId?.StockName || "Loading..."}
+                </span>
               </div>
               <div className="d-flex flex-column">
                 <div className="input-group">
@@ -152,9 +141,9 @@ const BuySellModal = () => {
                     value={accountType}
                     onChange={handleAccountChange}
                   >
-                    <option value="personal">Personal Account</option>
-                    <option value="corp">Corporate Account</option>
-                    <option value="huf">HUF Account</option>
+                    <option value="Personal Account">Personal Account</option>
+                    <option value="Corporate Account">Corporate Account</option>
+                    <option value="HUF Account">HUF Account</option>
                   </select>
                 </div>
 
@@ -165,7 +154,6 @@ const BuySellModal = () => {
                     type="number"
                     value={qty}
                     onChange={handleQtyChange}
-                    // min="1"
                   />
                 </div>
 
@@ -228,7 +216,7 @@ const BuySellModal = () => {
                 <button
                   className="cancel-btn"
                   style={{
-                    backgroundColor:"black"
+                    backgroundColor: "black",
                   }}
                   onClick={() => {
                     localStorage.removeItem(action);
