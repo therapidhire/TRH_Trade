@@ -43,15 +43,17 @@ const HoldingsDashboard = () => {
             return extractedNumber > 1;
           });
 
-          const transformedHoldings = filteredHoldings.map((Position) => ({
-            symbol: Position.stockSymbol || "N/A",
-            name: Position.stockName || "N/A",
-            quantity: Position.stockQty || 0,
-            price: Position.stockPrice || 0,
-            totalPrice: (Position.stockQty || 0) * (Position.stockPrice || 0), // Calculate Total Amount
-            isinNumber: Position.isin_Num,
-            age: calculateAge(Position.createdAt),
+          const transformedHoldings = filteredHoldings.map((holding) => ({
+            symbol: holding.stockSymbol || "N/A",
+            name: holding.stockName || "N/A",
+            quantity: holding.stockQty || 0,
+            price: holding.stockPrice || 0,
+            totalPrice: (holding.stockQty || 0) * (holding.stockPrice || 0), // Calculate Total Amount
+            isinNumber: holding.isin_Num,
+            age: calculateAge(holding.createdAt),
           }));
+
+          console.log("transformedHoldings ---", transformedHoldings);
 
           dispatch(setHoldings(transformedHoldings));
         }
@@ -97,7 +99,7 @@ const HoldingsDashboard = () => {
     { label: "Quantity", key: "quantity" },
     { label: "Buy Price", key: "price" },
     { label: "Total Amount", key: "totalAmount" }, // Added Total Amount
-    { label: "Age", key: "age" },
+    { label: "Buying Age", key: "age" },
   ];
 
   // Sort the holdings based on the selected column
@@ -166,7 +168,7 @@ const HoldingsDashboard = () => {
                 >
                   {column.label}
                   {sortColumn === column.key && (
-                    <span>{sortOrder === "asc" ? " 🔼" : " 🔽"}</span>
+                    <span>{(sortOrder === "asc" ? "↑" : "↓")}</span>
                   )}
                 </th>
               ))}
@@ -179,7 +181,7 @@ const HoldingsDashboard = () => {
                 <td>{holding.name}</td>
                 <td>{holding.quantity}</td>
                 <td>{holding.price}</td>
-                <td>{holding.totalAmount}</td> {/* Total Amount */}
+                <td>{holding.totalPrice}</td> {/* Total Amount */}
                 <td>{holding.age}</td>
                 <td>
                   <button
