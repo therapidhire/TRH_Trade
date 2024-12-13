@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const roleRoutes = require('./src/Routes/RoleRoutes');
 const userRoutes = require('./src/Routes/UserRoutes');
 const stockRoutes = require('./src/Routes/StockRoutes');
+const notificationRouter = require('./src/Routes/NotificationRoutes')
 const stockTransactionRoutes = require('./src/Routes/stockTransactionRoutes');
 const connectDB = require('./src/Config/db');
 const cors = require('cors');
@@ -26,6 +27,7 @@ connectDB();
 app.use('/api/roles', roleRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockRoutes);
+app.use('/api/notification', notificationRouter);
 app.use('/api/stock-transactions', stockTransactionRoutes);
 
 

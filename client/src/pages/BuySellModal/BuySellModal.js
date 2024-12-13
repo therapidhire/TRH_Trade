@@ -130,7 +130,7 @@ const BuySellModal = () => {
             <div className="modal-content">
               <div className="stock-info">
                 <span className="stock-name m-4">
-                  {singleStock?.StockId?.StockName || "Loading..."}
+                  {singleStock?.StockId?.StockName || stockData?.name || "Loading..."}
                 </span>
               </div>
               <div className="d-flex flex-column">
