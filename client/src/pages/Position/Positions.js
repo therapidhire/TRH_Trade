@@ -91,7 +91,7 @@ const Positions = () => {
   
         // Filter positions created by the user
         const filtered = positionsData.filter(
-          (position) => position.CreatedBy === userId
+          (position) => (position.CreatedBy === userId && position.TransactionType == 'buy')
         );
   
         // Map over positions to format for table columns
@@ -102,11 +102,12 @@ const Positions = () => {
             );
   
             const stockData = stockResponse.data;
-  
+            console.log("stockData in position:- ", stockData);
             // Calculate the age and filter for age <= 1 day
             const age = calculateAge(position.CreatedAt);
             if (age <= 1) {
               return {
+                StockId: position.StockId,
                 symbol: stockData.Symbol,
                 name: stockData.StockName,
                 quantity: position.Quantity,
@@ -153,13 +154,34 @@ const Positions = () => {
   //   return `${ageInDays} days`;
   // };
 
-  const handleTrade = (stock, actionType) => {
-    if (actionType === "buy") {
-      localStorage.setItem("buy", JSON.stringify(stock));
-      navigate(`/trade/buy/${stock.name}`);
-    } else if (actionType === "sell") {
-      localStorage.setItem("sell", JSON.stringify(stock));
-      navigate(`/trade/sell/${stock.name}`);
+  // const handleTrade = (stock, actionType) => {
+  //   console.log("stock in posiotion:-- ", stock);
+  //   if (actionType === "buy") {
+  //     localStorage.setItem("buy", JSON.stringify(stock));
+  //     navigate(`/trade/buy/${stock.name}`);
+  //   } else if (actionType === "sell") {
+  //     localStorage.setItem("sell", JSON.stringify(stock));
+  //     navigate(`/trade/sell/${stock.name}`);
+  //   }
+  // };
+
+
+  const handleTrade = async (stock, actionType) => {
+
+    console.log("stock in posiotion:-- ", stock);
+    try {
+      const response = await axios.get(`http://localhost:8080/api/stocks/${stock.StockId}`);
+      const stockData = response?.data;
+
+      console.log("Single Stock Details in Dashboard:- ", stockData)
+      if (stockData == null) {
+        localStorage.setItem(actionType, JSON.stringify(stock));
+      } else {
+        localStorage.setItem(actionType, JSON.stringify(stockData));
+      }
+      navigate(`/trade/${actionType}/${stock.name}`);
+    } catch (error) {
+      console.error(`Error handling ${actionType} for stock:`, error);
     }
   };
 

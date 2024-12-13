@@ -16,11 +16,13 @@ const Header = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        // const response = await axios.get(
-        //   "http://localhost:8080/api/notification/getAllNotifications"
-        // );
-        // setNotifications(response.data.data || []);
-        setNotifications([]);
+        const response = await axios.get(
+          "http://localhost:8080/api/notification/getAllNotifications"
+        );
+
+        console.log("get all Notifications", response.data);
+        setNotifications(response.data.data || []);
+        // setNotifications([]);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }

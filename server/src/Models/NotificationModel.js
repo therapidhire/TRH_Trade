@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
+const User = require("../Models/UserModel")
 const notificationSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserModel", // Reference to the user table
+    ref: User, // Reference to the user table
     required: true,
   },
   actionType: {

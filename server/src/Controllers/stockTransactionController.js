@@ -1,5 +1,11 @@
 const StockTransaction = require('../Models/StockTransaction');
 const User = require('../Models/UserModel');
+const Notification = require('../Models/NotificationModel');
+const { saveRegistrationNotification,
+  saveLoginNotification,
+  saveBuyNotification,
+  saveSellNotification,
+  getAllNotifications, } = require("../Controllers/notificationController");
 const mongoose = require('mongoose');
 
 // Create a new stock transaction
@@ -102,10 +108,232 @@ const mongoose = require('mongoose');
 
 
 
+// const createTransaction = async (req, res) => {
+//   try {
+//     const { UserId, StockId, Quantity, Price, TransactionType } = req.body;
+//     console.log("createTransaction:-- ", req.body);
+
+//     if (TransactionType === "buy") {
+//       // Handle Buy Transaction
+//       let existingTransaction = await StockTransaction.findOne({
+//         UserId,
+//         StockId,
+//         TransactionType: "buy",
+//       });
+
+//       if (existingTransaction) {
+//         // Calculate new average Price
+//         const totalQuantity = existingTransaction.Quantity + Quantity;
+//         const totalValue =
+//           existingTransaction.Quantity * existingTransaction.Price +
+//           Quantity * Price;
+//         const averagePrice = totalValue / totalQuantity;
+
+//         // Update existing transaction
+//         existingTransaction.Quantity = totalQuantity;
+//         existingTransaction.Price = averagePrice; // Update Price to the new average Price
+//         await existingTransaction.save();
+
+//         return res.status(200).json({
+//           message: "Buy transaction updated successfully",
+//           transaction: existingTransaction,
+//         });
+//       } else {
+//         // Create new transaction
+//         const transaction = new StockTransaction({
+//           UserId,
+//           StockId,
+//           Quantity,
+//           Price,
+//           TransactionType: "buy",
+//         });
+//         await transaction.save();
+//         return res.status(201).json({
+//           message: "Buy transaction created successfully",
+//           transaction,
+//         });
+//       }
+//     } else if (TransactionType === "sell") {
+//       // Handle Sell Transaction
+//       let buyTransaction = await StockTransaction.findOne({
+//         UserId,
+//         StockId,
+//         TransactionType: "buy",
+//       });
+
+//       if (!buyTransaction || buyTransaction.Quantity < Quantity) {
+//         return res.status(400).json({
+//           message: "Insufficient stock to sell or no buy transaction found",
+//         });
+//       }
+
+//       // Adjust buy transaction Quantity
+//       const remainingQuantity = buyTransaction.Quantity - Quantity;
+//       const totalValue = remainingQuantity * buyTransaction.Price; // Calculate remaining total value
+
+//       // Recalculate the average price if quantity is reduced
+//       if (remainingQuantity > 0) {
+//         const averagePrice = totalValue / remainingQuantity;
+//         buyTransaction.Quantity = remainingQuantity;
+//         buyTransaction.Price = averagePrice;
+//       } else {
+//         // If all stock is sold, remove the buy transaction
+//         await buyTransaction.remove();
+//       }
+
+//       await buyTransaction.save();
+
+//       // Create a new sell transaction
+//       const sellTransaction = new StockTransaction({
+//         UserId,
+//         StockId,
+//         Quantity,
+//         Price,
+//         TransactionType: "sell",
+//       });
+//       await sellTransaction.save();
+
+//       return res.status(201).json({
+//         message: "Sell transaction created successfully",
+//         sellTransaction,
+//         updatedBuyTransaction: buyTransaction || "Buy transaction removed after sell",
+//       });
+//     } else {
+//       return res.status(400).json({ message: "Invalid transaction type" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+// const createTransaction = async (req, res) => {
+//   try {
+//     const { UserId, StockId, Quantity, Price, TransactionType } = req.body;
+//     console.log("createTransaction:-- ", req.body);
+
+//     if (TransactionType === "buy") {
+//       // Handle Buy Transaction
+//       let existingTransaction = await StockTransaction.findOne({
+//         UserId,
+//         StockId,
+//         TransactionType: "buy",
+//       });
+
+//       if (existingTransaction) {
+//         // Calculate new average Price
+//         const totalQuantity = existingTransaction.Quantity + Quantity;
+//         const totalValue =
+//           existingTransaction.Quantity * existingTransaction.Price +
+//           Quantity * Price;
+//         const averagePrice = totalValue / totalQuantity;
+
+//         // Update existing transaction
+//         existingTransaction.Quantity = totalQuantity;
+//         existingTransaction.Price = averagePrice; // Update Price to the new average Price
+//         await existingTransaction.save();
+
+//         // Save buy notification
+//         await saveBuyNotification(UserId, StockId);
+
+//         return res.status(200).json({
+//           message: "Buy transaction updated successfully",
+//           transaction: existingTransaction,
+//         });
+//       } else {
+//         // Create new transaction
+//         const transaction = new StockTransaction({
+//           UserId,
+//           StockId,
+//           Quantity,
+//           Price,
+//           TransactionType: "buy",
+//         });
+//         await transaction.save();
+
+//         // Save buy notification
+//         await saveBuyNotification(UserId, StockId);
+
+//         return res.status(201).json({
+//           message: "Buy transaction created successfully",
+//           transaction,
+//         });
+//       }
+//     } else if (TransactionType === "sell") {
+//       // Handle Sell Transaction
+//       let buyTransaction = await StockTransaction.findOne({
+//         UserId,
+//         StockId,
+//         TransactionType: "buy",
+//       });
+
+//       if (!buyTransaction || buyTransaction.Quantity < Quantity) {
+//         return res.status(400).json({
+//           message: "Insufficient stock to sell or no buy transaction found",
+//         });
+//       }
+
+//       // Adjust buy transaction Quantity
+//       const remainingQuantity = buyTransaction.Quantity - Quantity;
+//       const totalValue = remainingQuantity * buyTransaction.Price; // Calculate remaining total value
+
+//       // Recalculate the average price if quantity is reduced
+//       if (remainingQuantity > 0) {
+//         const averagePrice = totalValue / remainingQuantity;
+//         buyTransaction.Quantity = remainingQuantity;
+//         buyTransaction.Price = averagePrice;
+//       } else {
+//         // If all stock is sold, remove the buy transaction
+//         await buyTransaction.remove();
+//       }
+
+//       await buyTransaction.save();
+
+//       // Create a new sell transaction
+//       const sellTransaction = new StockTransaction({
+//         UserId,
+//         StockId,
+//         Quantity,
+//         Price,
+//         TransactionType: "sell",
+//       });
+//       await sellTransaction.save();
+
+//       // Save sell notification
+//       await saveSellNotification(UserId, StockId);
+
+//       return res.status(201).json({
+//         message: "Sell transaction created successfully",
+//         sellTransaction,
+//         updatedBuyTransaction: buyTransaction || "Buy transaction removed after sell",
+//       });
+//     } else {
+//       return res.status(400).json({ message: "Invalid transaction type" });
+//     }
+//   } catch (error) {
+//     console.error("Error creating transaction:", error.message);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
 const createTransaction = async (req, res) => {
   try {
-    const { UserId, StockId, Quantity, Price, TransactionType } = req.body;
+    const {
+      UserId,
+      StockId,
+      Quantity,
+      Price,
+      TransactionType,
+      AccountType,
+      Reason,
+      CreatedBy,
+    } = req.body;
+
     console.log("createTransaction:-- ", req.body);
+
+    if (!UserId || !StockId || !TransactionType || !AccountType || !Reason || !CreatedBy) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
     if (TransactionType === "buy") {
       // Handle Buy Transaction
@@ -125,8 +353,14 @@ const createTransaction = async (req, res) => {
 
         // Update existing transaction
         existingTransaction.Quantity = totalQuantity;
-        existingTransaction.Price = averagePrice; // Update Price to the new average Price
+        existingTransaction.Price = averagePrice;
+        existingTransaction.AccountType = AccountType;
+        existingTransaction.Reason = Reason;
+        existingTransaction.CreatedBy = CreatedBy;
         await existingTransaction.save();
+
+        // Save buy notification
+        await saveBuyNotification(UserId, StockId);
 
         return res.status(200).json({
           message: "Buy transaction updated successfully",
@@ -140,8 +374,15 @@ const createTransaction = async (req, res) => {
           Quantity,
           Price,
           TransactionType: "buy",
+          AccountType,
+          Reason,
+          CreatedBy,
         });
         await transaction.save();
+
+        // Save buy notification
+        await saveBuyNotification(UserId, StockId);
+
         return res.status(201).json({
           message: "Buy transaction created successfully",
           transaction,
@@ -165,11 +406,13 @@ const createTransaction = async (req, res) => {
       const remainingQuantity = buyTransaction.Quantity - Quantity;
       const totalValue = remainingQuantity * buyTransaction.Price; // Calculate remaining total value
 
-      // Recalculate the average price if quantity is reduced
       if (remainingQuantity > 0) {
         const averagePrice = totalValue / remainingQuantity;
         buyTransaction.Quantity = remainingQuantity;
         buyTransaction.Price = averagePrice;
+        buyTransaction.AccountType = AccountType;
+        buyTransaction.Reason = Reason;
+        buyTransaction.CreatedBy = CreatedBy;
       } else {
         // If all stock is sold, remove the buy transaction
         await buyTransaction.remove();
@@ -184,8 +427,14 @@ const createTransaction = async (req, res) => {
         Quantity,
         Price,
         TransactionType: "sell",
+        AccountType,
+        Reason,
+        CreatedBy,
       });
       await sellTransaction.save();
+
+      // Save sell notification
+      await saveSellNotification(UserId, StockId);
 
       return res.status(201).json({
         message: "Sell transaction created successfully",
@@ -196,9 +445,13 @@ const createTransaction = async (req, res) => {
       return res.status(400).json({ message: "Invalid transaction type" });
     }
   } catch (error) {
+    console.error("Error creating transaction:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
 
 // Get all stock transactions
 const getAllTransactions = async (req, res) => {
