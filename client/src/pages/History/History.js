@@ -11,7 +11,11 @@ const History = () => {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< HEAD
   const [itemsPerPage] = useState(10);
+=======
+  const [itemsPerPage] = useState(5);
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
   // Fetch transactions and stock details
 
@@ -253,6 +257,7 @@ const History = () => {
                   <th>Symbol</th>
                   <th>Stock Name</th>
                   <th>Purchase Price</th>
+<<<<<<< HEAD
                   <th>Sell Price</th>
                   <th>Purchase Qty</th>
                   <th>Sell Qty</th>
@@ -263,6 +268,18 @@ const History = () => {
                   <th>Age</th>
                   <th>Sell Date</th>
                   <th>Purchase Date</th>
+=======
+                  <th>Purchase Qty</th>
+                  <th>Purchase Amount</th>
+                  <th>Sell Price</th>
+                  <th>Sell Qty</th>
+                  <th>Sell Amount</th>
+                  <th>Purchase Date</th>
+                  <th>Sell Date</th>
+                  <th>Age</th>
+                  <th>Profit/Loss</th>
+                  <th>Profit/Loss (%)</th>
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                 </tr>
               </thead>
               {/* <tbody>
@@ -300,11 +317,22 @@ const History = () => {
                       <td>{transaction.stockSymbol}</td>
                       <td>{transaction.stockName}</td>
                       <td>{transaction.purchasePrice}</td>
+<<<<<<< HEAD
                       <td>{transaction.sellPrice}</td>
                       <td>{transaction.purchaseQty}</td>
                       <td>{transaction.sellQty}</td>
                       <td>{transaction.purchaseAmount}</td>
                       <td>{transaction.sellAmount}</td>
+=======
+                      <td>{transaction.purchaseQty}</td>
+                      <td>{transaction.purchaseAmount}</td>
+                      <td>{transaction.sellPrice}</td>
+                      <td>{transaction.sellQty}</td>
+                      <td>{transaction.sellAmount}</td>
+                      <td>{formatDate(transaction.purchaseDate)}</td>
+                      <td>{formatDate(transaction.sellDate)}</td>
+                      <td>{transaction.age}</td>
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                       <td
                         style={{
                           color:
@@ -329,9 +357,12 @@ const History = () => {
                       >
                         {transaction.profitLossPercentage}%
                       </td>
+<<<<<<< HEAD
                       <td>{transaction.age}</td>
                       <td>{formatDate(transaction.purchaseDate)}</td>
                       <td>{formatDate(transaction.sellDate)}</td>
+=======
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                     </tr>
                   ))
                 ) : (

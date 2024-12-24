@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import React, { useState, useEffect } from "react";
 // import { Link, useLocation } from "react-router-dom";
 // import axios from "axios";
@@ -264,6 +265,11 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MdLogout } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
+=======
+
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 import axios from "axios";
 import "./Header.css";
 
@@ -272,11 +278,15 @@ const Header = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+<<<<<<< HEAD
   const [contactNo, setContactNo] = useState([]);
+=======
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
   const userRole = localStorage.getItem("role");
   const location = useLocation();
 
+<<<<<<< HEAD
   // Function to fetch notifications
   const fetchNotifications = async () => {
     try {
@@ -292,6 +302,23 @@ const Header = () => {
 
   // Initial fetch on component mount
   useEffect(() => {
+=======
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/notification/getAllNotifications"
+        );
+
+        console.log("get all Notifications", response.data);
+        setNotifications(response.data.data || []);
+        // setNotifications([]);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
     fetchNotifications();
   }, []);
 
@@ -299,6 +326,7 @@ const Header = () => {
     setDropdownOpen(!isDropdownOpen);
   };
 
+<<<<<<< HEAD
   const dateFormate = (date) => {
     const newDate = new Date(date);
     const formattedDate = newDate.toISOString().split("T")[0];
@@ -346,6 +374,12 @@ const Header = () => {
     } catch (error) {
       console.error("Error fetching notification details:", error);
     }
+=======
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+    setModalOpen(true);
+    setDropdownOpen(false); // Collapse the dropdown
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   };
 
   const closeModal = () => {
@@ -363,6 +397,7 @@ const Header = () => {
       <div className="logo-container">TRH Trade Portal</div>
       <nav className="nav-menu">
         <ul className="nav-list">
+<<<<<<< HEAD
           <li
             className={`nav-item ${
               location.pathname === "/dashboard" ? "active" : ""
@@ -397,6 +432,22 @@ const Header = () => {
                 <span className="notification-badge">
                   {notifications.length}
                 </span>
+=======
+          <li className={`nav-item ${location.pathname === "/dashboard" ? "active" : ""}`}>
+            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+          </li>
+          <li className={`nav-item ${location.pathname === "/holdings" ? "active" : ""}`}>
+            <Link to="/holdings" className="nav-link">Holdings</Link>
+          </li>
+          <li className={`nav-item ${location.pathname === "/positions" ? "active" : ""}`}>
+            <Link to="/positions" className="nav-link">Positions</Link>
+          </li>
+
+          {userRole === "Admin" && (
+            <li className="nav-item notification-container">
+              <div className="notification-icon" onClick={handleIconClick}>
+                <span className="notification-badge">{notifications.length}</span>
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                 🔔
               </div>
               {isDropdownOpen && (
@@ -409,6 +460,7 @@ const Header = () => {
                           className="notification-item"
                           onClick={() => handleNotificationClick(notif)}
                         >
+<<<<<<< HEAD
                           <p
                             style={{
                               color: "blue",
@@ -439,6 +491,13 @@ const Header = () => {
                           className="clear-button"
                           onClick={() => setNotifications([])}
                         >
+=======
+                          {notif.actionType} alert
+                        </div>
+                      ))}
+                      <div className="dropdown-footer">
+                        <button className="clear-button" onClick={() => setNotifications([])}>
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                           Clear All
                         </button>
                       </div>
@@ -451,6 +510,7 @@ const Header = () => {
             </li>
           )}
 
+<<<<<<< HEAD
           <li
             className={`nav-item ${
               location.pathname === "/history" ? "active" : ""
@@ -483,12 +543,23 @@ const Header = () => {
             >
               <MdLogout />
             </Link>
+=======
+          <li className={`nav-item ${location.pathname === "/history" ? "active" : ""}`}>
+            <Link to="/history" className="nav-link">History</Link>
+          </li>
+          <li className={`nav-item ${location.pathname === "/profile" ? "active" : ""}`}>
+            <Link to="/profile" className="nav-link">{userRole}</Link>
+          </li>
+          <li className={`nav-item ${location.pathname === "/" ? "active" : ""}`}>
+            <Link to="/" className="nav-link" onClick={logoutuser}>Logout</Link>
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
           </li>
         </ul>
       </nav>
 
       {isModalOpen && selectedNotification && (
         <div className="notification-modal-overlay" onClick={closeModal}>
+<<<<<<< HEAD
           <div
             className="notification-modal"
             onClick={(e) => e.stopPropagation()}
@@ -552,6 +623,14 @@ const Header = () => {
                 </div>
               </div>
             </div>
+=======
+          <div className="notification-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal-button" onClick={closeModal}>✖</button>
+            <h3 className="mb-4">Notification Details</h3>
+            <p><strong>Notification about:</strong> {selectedNotification.actionType}</p>
+            <p><strong>Message:</strong> {selectedNotification?.user.email}</p>
+            <p><strong>Details:</strong> {selectedNotification?._id || "No additional details available."}</p>
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
           </div>
         </div>
       )}

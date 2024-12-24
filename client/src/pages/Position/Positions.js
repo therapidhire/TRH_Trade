@@ -13,9 +13,73 @@ const Positions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
+<<<<<<< HEAD
   const itemsPerPage = 10;
 
   const userId = localStorage.getItem("userId");
+=======
+  const itemsPerPage = 5;
+
+  const userId = localStorage.getItem("userId");
+
+  // useEffect(() => {
+  //   const fetchPositions = async () => {
+  //     try {
+  //       console.log("Fetching positions for user id:", userId);
+
+  //       // Fetch stock transactions for the user
+  //       const response = await axios.get(
+  //         `http://localhost:8080/api/stock-transactions/transaction/${userId}`
+  //       );
+
+  //       const positionsData = response.data;
+  //       console.log("positionsData", positionsData)
+
+  //       // Filter positions created by the user
+  //       const filtered = positionsData.filter(
+  //         (position) => position.CreatedBy === userId
+  //       );
+
+  //       // Map over positions to format for table columns
+  //       const formattedPositions = await Promise.all(
+  //         filtered.map(async (position) => {
+  //           const stockResponse = await axios.get(
+  //             `http://localhost:8080/api/stocks/${position.StockId}`
+  //           );
+
+  //           const stockData = stockResponse.data;
+  //           console.log("stockData", stockData)
+
+  //           const newStockData = stockData.filter((pos)=>{
+  //             calculateAge(position.CreatedAt) <= 1;
+  //           })
+            
+            
+
+  //           return {
+  //             symbol: newStockData.Symbol,
+  //             name: newStockData.StockName,
+  //             quantity: position.Quantity,
+  //             price: position.Price,
+  //             totalPrice: (position.Quantity * position.Price).toFixed(2),
+  //             age: calculateAge(position.CreatedAt),
+  //           };
+  //         })
+  //       );
+
+  //       setPositions(formattedPositions);
+  //       setFilteredPositions(formattedPositions);
+
+  //       console.log("Formatted Positions:", formattedPositions);
+  //     } catch (error) {
+  //       console.error("Error fetching positions:", error);
+  //     }
+  //   };
+
+  //   fetchPositions();
+  // }, [userId]);
+
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   
   
   useEffect(() => {
@@ -175,7 +239,11 @@ const Positions = () => {
     "Symbol",
     "Position Name",
     "Quantity",
+<<<<<<< HEAD
     "Price",
+=======
+    "Buy Price",
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
     "Total Amount",
     "Buying Age",
   ];

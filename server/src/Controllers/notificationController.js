@@ -78,6 +78,7 @@ const saveLoginNotification = async () => {
 // };
 
 const saveBuyNotification = async (userId, stockId) => {
+<<<<<<< HEAD
   try {
     const notification = new Notification({
       userId,
@@ -113,17 +114,59 @@ const saveSellNotification = async (userId, stockId) => {
     console.error("Error saving sell stock notification:", error.message);
   }
 };
+=======
+    try {
+      const notification = new Notification({
+        userId,
+        actionType: "BUY",
+        details: {
+          stockId,
+          transactionTime: new Date(),
+        },
+      });
+      await notification.save();
+      console.log("Buy stock notification saved.");
+    } catch (error) {
+      console.error("Error saving buy stock notification:", error.message);
+    }
+  };
+  
+  const saveSellNotification = async (userId, stockId) => {
+    try {
+      const notification = new Notification({
+        userId,
+        actionType: "SELL",
+        details: {
+          stockId,
+          transactionTime: new Date(),
+        },
+      });
+      await notification.save();
+      console.log("Sell stock notification saved.");
+    } catch (error) {
+      console.error("Error saving sell stock notification:", error.message);
+    }
+  };
+
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
 // Function to fetch all notifications
 const getAllNotifications = async (req, res) => {
   try {
+<<<<<<< HEAD
     const notifications = await Notification.find({ isRead: false })
+=======
+    const notifications = await Notification.find()
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
       .populate("userId", "name email") // Populate user details (name and email)
       .sort({ createdAt: -1 }); // Sort by newest first
     res.status(200).json({
       message: "Notifications fetched successfully.",
       data: notifications.map((notif) => ({
+<<<<<<< HEAD
         id: notif._id,
+=======
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
         actionType: notif.actionType,
         details: notif.details || "N/A",
         createdAt: notif.createdAt,
@@ -136,6 +179,7 @@ const getAllNotifications = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 
 
 
@@ -172,11 +216,16 @@ const updateNotification = async (req, res) => {
 };
 
 
+=======
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 module.exports = {
   saveRegistrationNotification,
   saveLoginNotification,
   saveBuyNotification,
   saveSellNotification,
   getAllNotifications,
+<<<<<<< HEAD
   updateNotification,
+=======
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 };

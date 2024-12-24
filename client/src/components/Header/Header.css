@@ -62,7 +62,11 @@
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
+<<<<<<< HEAD
   /* align-items: center; */
+=======
+  align-items: center;
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   z-index: 20;
 }
 
@@ -71,6 +75,7 @@
   padding: 20px;
   border-radius: 10px;
   width: 700px;
+<<<<<<< HEAD
     height: 450px;
   position: relative;
   /* text-align: center; */
@@ -80,6 +85,11 @@
 }
 .notification-modal-overlay > input{
   width: 30%;
+=======
+    height: 300px;
+  position: relative;
+  text-align: center;
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 }
 
 .close-modal-button {
@@ -148,7 +158,11 @@
 }
 
 .notification-modal {
+<<<<<<< HEAD
   background: rgb(221, 239, 250);
+=======
+  background: white;
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   padding: 20px;
   border-radius: 10px;
   width: 600px;
@@ -157,8 +171,12 @@
   display: flex;
   /* justify-content: center; */
   flex-direction: column;
+<<<<<<< HEAD
   /* align-items: center; */
   /* color: white; */
+=======
+  align-items: center;
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 }
 
 .close-modal-button {
@@ -208,6 +226,7 @@
   position: absolute;
   top: 40px; 
   right: 0;
+<<<<<<< HEAD
   left: -95px;
   width: 350px;
   max-height: 250px;
@@ -215,6 +234,14 @@
   background-color: white;
   border: 1px solid #ddd;
   box-shadow: 12px 14px 6px rgba(0, 0, 0, 0.1);
+=======
+  width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   border-radius: 4px;
   z-index: 1000;
 }
@@ -237,6 +264,7 @@
   font-size: 12px;
   color: #999;
 }
+<<<<<<< HEAD
 
 
 .notificationLine{
@@ -376,3 +404,5 @@
   color: #888;
   font-size: 14px;
 } */
+=======
+>>>>>>> 09a184939353169bffaadfb2a6670fe417392756
