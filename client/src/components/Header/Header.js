@@ -1,275 +1,6 @@
-<<<<<<< HEAD
-// import React, { useState, useEffect } from "react";
-// import { Link, useLocation } from "react-router-dom";
-// import axios from "axios";
-// import "./Header.css";
-
-// const Header = () => {
-//   const [notifications, setNotifications] = useState([]);
-//   const [isDropdownOpen, setDropdownOpen] = useState(false);
-//   const [selectedNotification, setSelectedNotification] = useState(null);
-//   const [isModalOpen, setModalOpen] = useState(false);
-//   const [contactNo, setContactNo] = useState([]);
-
-//   const userRole = localStorage.getItem("role");
-//   const location = useLocation();
-
-//   useEffect(() => {
-//     const fetchNotifications = async () => {
-//       try {
-//         const response = await axios.get(
-//           "http://localhost:8080/api/notification/getAllNotifications"
-//         );
-
-//         // console.log("get all Notifications", response.data);
-//         setNotifications(response.data.data || []);
-//       } catch (error) {
-//         console.error("Error fetching notifications:", error);
-//       }
-//     };
-
-//     fetchNotifications();
-//   }, []);
-
-//   const handleIconClick = () => {
-//     setDropdownOpen(!isDropdownOpen);
-//   };
-
-//   const dateFormate = (date)=>{
-//     const newDate = new Date(date);
-//     const formattedDate = newDate.toISOString().split('T')[0];
-//     return formattedDate;
-
-//   }
-
-//   const handleNotificationClick = async (notification) => {
-//     try {
-//       console.log("Notification details:", notification);
-
-//       const stockResponse = await axios.get(
-//         `http://localhost:8080/api/stock-transactions/${notification.details.stockId}`
-//       );
-//       const stockDetails = stockResponse.data;
-//       // console.log("stockDetails", stockDetails);
-//       const userResponse = await axios.get(
-//         `http://localhost:8080/api/users/${notification.user._id}`
-//       );
-//       const userDetails = userResponse.data;
-//       // console.log("userDetails", userDetails);
-//       setContactNo(userDetails?.ContactNo);
-//       setSelectedNotification({
-//         fisrtname: userDetails?.Firstname,
-//         ContactNo: userDetails?.ContactNo,
-//         lastname: userDetails?.Lastname,
-//         useremail: userDetails?.UserEmail,
-//         stockname: stockDetails?.StockId?.StockName,
-//         stockType: notification?.actionType, // Assuming "type" represents buy/sell
-//         stockPrice: stockDetails?.Price,
-//         qty: stockDetails?.Quantity,
-//         transactionDate: dateFormate(stockDetails?.createdAt), // Assuming "date" is the transaction date
-//       });
-
-//       setModalOpen(true);
-//       setDropdownOpen(false); // Collapse the dropdown
-//     } catch (error) {
-//       console.error("Error fetching notification details:", error);
-//     }
-//   };
-
-//   const closeModal = () => {
-//     setModalOpen(false);
-//     setSelectedNotification(null);
-//   };
-
-//   const logoutuser = () => {
-//     localStorage.clear();
-//     window.location.href = "/";
-//   };
-
-//   // console.log("selectedNotification", selectedNotification);
-
-//   return (
-//     <header className="dashboard-header shadow p-3 mb-5 bg-white rounded">
-//       <div className="logo-container">TRH Trade Portal</div>
-//       <nav className="nav-menu">
-//         <ul className="nav-list">
-//           <li
-//             className={`nav-item ${
-//               location.pathname === "/dashboard" ? "active" : ""
-//             }`}
-//           >
-//             <Link to="/dashboard" className="nav-link">
-//               Dashboard
-//             </Link>
-//           </li>
-//           <li
-//             className={`nav-item ${
-//               location.pathname === "/holdings" ? "active" : ""
-//             }`}
-//           >
-//             <Link to="/holdings" className="nav-link">
-//               Holdings
-//             </Link>
-//           </li>
-//           <li
-//             className={`nav-item ${
-//               location.pathname === "/positions" ? "active" : ""
-//             }`}
-//           >
-//             <Link to="/positions" className="nav-link">
-//               Positions
-//             </Link>
-//           </li>
-
-//           {(userRole === "Admin" || userRole === "SuperAdmin") && (
-//             <li className="nav-item notification-container">
-//               <div className="notification-icon" onClick={handleIconClick}>
-//                 <span className="notification-badge">
-//                   {notifications.length}
-//                 </span>
-//                 🔔
-//               </div>
-//               {isDropdownOpen && (
-//                 <div className="notification-dropdown">
-//                   {notifications.length > 0 ? (
-//                     <>
-//                       {notifications.map((notif, index) => (
-//                         <div
-//                           key={index}
-//                           className="notification-item"
-//                           onClick={() => handleNotificationClick(notif)}
-//                         >
-//                           {notif.actionType} alert
-//                         </div>
-//                       ))}
-//                       <div className="dropdown-footer">
-//                         <button
-//                           className="clear-button"
-//                           onClick={() => setNotifications([])}
-//                         >
-//                           Clear All
-//                         </button>
-//                       </div>
-//                     </>
-//                   ) : (
-//                     <div className="notification-item">No notifications</div>
-//                   )}
-//                 </div>
-//               )}
-//             </li>
-//           )}
-
-//           <li
-//             className={`nav-item ${
-//               location.pathname === "/history" ? "active" : ""
-//             }`}
-//           >
-//             <Link to="/history" className="nav-link">
-//               History
-//             </Link>
-//           </li>
-//           <li
-//             className={`nav-item ${
-//               location.pathname === "/profile" ? "active" : ""
-//             }`}
-//           >
-//             <Link to="/profile" className="nav-link">
-//               {userRole}
-//             </Link>
-//           </li>
-//           <li
-//             className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
-//           >
-//             <Link to="/" className="nav-link" onClick={logoutuser}>
-//               Logout
-//             </Link>
-//           </li>
-//         </ul>
-//       </nav>
-
-//       {isModalOpen && selectedNotification && (
-//         <div className="notification-modal-overlay" onClick={closeModal}>
-//           <div
-//             className="notification-modal"
-//             onClick={(e) => e.stopPropagation()}
-//           >
-//             <button className="close-modal-button" onClick={closeModal}>
-//               ✖
-//             </button>
-//             <h3 className="mb-4">Notification Details</h3>
-//             <div className="innerNotificationBox">
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Alert Type:</div>
-//                 <div className="notificationInput">
-//                   {selectedNotification.stockType} Alert
-//                 </div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Username:</div>
-//                 <div className="notificationInput">
-//                   {selectedNotification.fisrtname}
-//                 </div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">User Email:</div>
-//                 <div className="notificationInput">
-//                   {selectedNotification.useremail}
-//                 </div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Contact No :</div>
-//                 <div className="notificationInput">{contactNo}</div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Stock Name:</div>
-//                 <div className="notificationInput">
-//                   {selectedNotification.stockname}
-//                 </div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Stock Price:</div>
-//                 <div className="notificationInput">
-//                   {selectedNotification.stockPrice}
-//                 </div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Stock Quantity:</div>
-//                 <div className="notificationInput">
-//                   {selectedNotification.qty}
-//                 </div>
-//               </div>
-
-//               <div className="notificationLine">
-//                 <div className="notificationLabel">Transaction Date:</div>
-//                 <div className="notificationInput">
-//                 {selectedNotification.transactionDate}
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </header>
-//   );
-// };
-
-// export default Header;
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MdLogout } from "react-icons/md";
-import { CgProfile } from "react-icons/cg";
-=======
-
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
+import { IoIosLogOut } from "react-icons/io";
 import axios from "axios";
 import "./Header.css";
 
@@ -278,108 +9,77 @@ const Header = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-<<<<<<< HEAD
-  const [contactNo, setContactNo] = useState([]);
-=======
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
   const userRole = localStorage.getItem("role");
   const location = useLocation();
 
-<<<<<<< HEAD
-  // Function to fetch notifications
+  // Function to fetch all notifications
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
         "http://localhost:8080/api/notification/getAllNotifications"
       );
-      console.log("filteredResponse", response.data.data);
+
+      console.log("get all Notifications", response.data.data);
       setNotifications(response.data.data || []);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
   };
 
-  // Initial fetch on component mount
   useEffect(() => {
-=======
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8080/api/notification/getAllNotifications"
-        );
-
-        console.log("get all Notifications", response.data);
-        setNotifications(response.data.data || []);
-        // setNotifications([]);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
-    };
-
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
-    fetchNotifications();
+    fetchNotifications(); // Fetch notifications on component mount
   }, []);
 
   const handleIconClick = () => {
     setDropdownOpen(!isDropdownOpen);
   };
 
-<<<<<<< HEAD
-  const dateFormate = (date) => {
-    const newDate = new Date(date);
-    const formattedDate = newDate.toISOString().split("T")[0];
-    return formattedDate;
-  };
-
   const handleNotificationClick = async (notification) => {
     try {
-      console.log("Notification details ---:", notification);
+      console.log("Clicked Notification:", notification);
 
-      // Mark notification as read in the backend
+      const stock_id = notification?.details?.stockId;
+
+      // Fetch stock details
+      const stockDetailsResponse = await axios.get(
+        `http://localhost:8080/api/stock-transactions/${stock_id}`
+      );
+      console.log("Stock Details:", stockDetailsResponse.data);
+
+      // Mark the notification as read
       await axios.put(
         `http://localhost:8080/api/notification/markAsRead/${notification.id}`,
         { isRead: true }
       );
 
-      const stockResponse = await axios.get(
-        `http://localhost:8080/api/stock-transactions/${notification.details.stockId}`
-      );
-      const stockDetails = stockResponse.data;
+      // Prepare notification details
+      const NotificationDetails = {
+        actionType: stockDetailsResponse.data.TransactionType || "N/A",
+        name: stockDetailsResponse.data.UserId?.Firstname || "N/A",
+        email: stockDetailsResponse.data.UserId?.UserEmail || "N/A",
+        contact: stockDetailsResponse.data.UserId?.ContactNo || "N/A",
+        accountType: stockDetailsResponse.data.AccountType || "N/A",
+        stockName: stockDetailsResponse.data.StockId?.StockName || "N/A",
+        price: stockDetailsResponse.data.Price || "N/A",
+        qty: stockDetailsResponse.data.Quantity || "N/A",
+        reason: stockDetailsResponse.data.Reason || "N/A",
+      };
 
-      const userResponse = await axios.get(
-        `http://localhost:8080/api/users/${notification.user._id}`
-      );
-      const userDetails = userResponse.data;
+      console.log("Parsed Notification Details:", NotificationDetails);
 
-      setContactNo(userDetails?.ContactNo);
-      setSelectedNotification({
-        firstname: userDetails?.Firstname,
-        ContactNo: userDetails?.ContactNo,
-        lastname: userDetails?.Lastname,
-        useremail: userDetails?.UserEmail,
-        stockname: stockDetails?.StockId?.StockName,
-        stockType: notification?.actionType,
-        stockPrice: stockDetails?.Price,
-        qty: stockDetails?.Quantity,
-        transactionDate: dateFormate(stockDetails?.createdAt),
-      });
+      // Update the selected notification state
+      setSelectedNotification(NotificationDetails);
 
-      // Refresh notifications to update the count in real-time
-      fetchNotifications();
-
+      // Open the modal and close the dropdown
       setModalOpen(true);
       setDropdownOpen(false);
+
+      // Re-fetch all notifications to update the list
+      await fetchNotifications();
     } catch (error) {
-      console.error("Error fetching notification details:", error);
+      console.error("Error handling notification click:", error);
     }
-=======
-  const handleNotificationClick = (notification) => {
-    setSelectedNotification(notification);
-    setModalOpen(true);
-    setDropdownOpen(false); // Collapse the dropdown
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   };
 
   const closeModal = () => {
@@ -397,7 +97,6 @@ const Header = () => {
       <div className="logo-container">TRH Trade Portal</div>
       <nav className="nav-menu">
         <ul className="nav-list">
-<<<<<<< HEAD
           <li
             className={`nav-item ${
               location.pathname === "/dashboard" ? "active" : ""
@@ -432,22 +131,6 @@ const Header = () => {
                 <span className="notification-badge">
                   {notifications.length}
                 </span>
-=======
-          <li className={`nav-item ${location.pathname === "/dashboard" ? "active" : ""}`}>
-            <Link to="/dashboard" className="nav-link">Dashboard</Link>
-          </li>
-          <li className={`nav-item ${location.pathname === "/holdings" ? "active" : ""}`}>
-            <Link to="/holdings" className="nav-link">Holdings</Link>
-          </li>
-          <li className={`nav-item ${location.pathname === "/positions" ? "active" : ""}`}>
-            <Link to="/positions" className="nav-link">Positions</Link>
-          </li>
-
-          {userRole === "Admin" && (
-            <li className="nav-item notification-container">
-              <div className="notification-icon" onClick={handleIconClick}>
-                <span className="notification-badge">{notifications.length}</span>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                 🔔
               </div>
               {isDropdownOpen && (
@@ -460,30 +143,23 @@ const Header = () => {
                           className="notification-item"
                           onClick={() => handleNotificationClick(notif)}
                         >
-<<<<<<< HEAD
-                          <p
+                          <div
                             style={{
-                              color: "blue",
-                              fontSize: "17px",
-                              fontWeight: "500",
                               display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
                             }}
                           >
-                            {" "}
-                            <p>{notif.actionType} Action Perfomed:</p>{" "}
+                            <p>{notif.actionType} Action is Performed:</p>
                             <p
                               style={{
-                                color: "orange",
                                 fontSize: "12px",
-                                fontWeight: "500",
-                                marginLeft: "6px",
+                                color: "orange",
+                                fontWeight: "200",
+                                marginLeft: "10px",
                               }}
                             >
-                              see Details
-                            </p>{" "}
-                          </p>
+                              See Details
+                            </p>
+                          </div>
                         </div>
                       ))}
                       <div className="dropdown-footer">
@@ -491,13 +167,6 @@ const Header = () => {
                           className="clear-button"
                           onClick={() => setNotifications([])}
                         >
-=======
-                          {notif.actionType} alert
-                        </div>
-                      ))}
-                      <div className="dropdown-footer">
-                        <button className="clear-button" onClick={() => setNotifications([])}>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
                           Clear All
                         </button>
                       </div>
@@ -510,7 +179,6 @@ const Header = () => {
             </li>
           )}
 
-<<<<<<< HEAD
           <li
             className={`nav-item ${
               location.pathname === "/history" ? "active" : ""
@@ -526,40 +194,25 @@ const Header = () => {
             }`}
           >
             <Link to="/profile" className="nav-link">
-              {/* <CgProfile /> */}
               Profile
             </Link>
           </li>
           <li
             className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
           >
-            <Link
-              to="/"
-              className="nav-link"
-              onClick={logoutuser}
-              style={{
-                fontSize: "28px",
-              }}
-            >
-              <MdLogout />
+            <Link to="/" className="nav-link" style={{
+              color: "blue",
+              fontWeight:"bold",
+              fontSize:"25px"
+            }} onClick={logoutuser}>
+              <IoIosLogOut />
             </Link>
-=======
-          <li className={`nav-item ${location.pathname === "/history" ? "active" : ""}`}>
-            <Link to="/history" className="nav-link">History</Link>
-          </li>
-          <li className={`nav-item ${location.pathname === "/profile" ? "active" : ""}`}>
-            <Link to="/profile" className="nav-link">{userRole}</Link>
-          </li>
-          <li className={`nav-item ${location.pathname === "/" ? "active" : ""}`}>
-            <Link to="/" className="nav-link" onClick={logoutuser}>Logout</Link>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
           </li>
         </ul>
       </nav>
 
       {isModalOpen && selectedNotification && (
         <div className="notification-modal-overlay" onClick={closeModal}>
-<<<<<<< HEAD
           <div
             className="notification-modal"
             onClick={(e) => e.stopPropagation()}
@@ -568,69 +221,45 @@ const Header = () => {
               ✖
             </button>
             <h3 className="mb-4">Notification Details</h3>
-            <div className="innerNotificationBox">
-              <div className="notificationLine">
-                <div className="notificationLabel">Alert Type:</div>
-                <div className="notificationInput">
-                  {selectedNotification.stockType} Alert
-                </div>
-              </div>
 
-              <div className="notificationLine">
-                <div className="notificationLabel">Username:</div>
-                <div className="notificationInput">
-                  {selectedNotification.firstname}
-                </div>
+            <div className="NotificationDetailDiv">
+              <div className="notificationHeading">
+                <h1 className="heading">Action:</h1>
+                <p className="para">{selectedNotification.actionType}</p>
               </div>
-
-              <div className="notificationLine">
-                <div className="notificationLabel">User Email:</div>
-                <div className="notificationInput">
-                  {selectedNotification.useremail}
-                </div>
+              <div className="notificationHeading">
+                <h1 className="heading">User name:</h1>
+                <p className="para">{selectedNotification.name}</p>
               </div>
-
-              <div className="notificationLine">
-                <div className="notificationLabel">Contact No :</div>
-                <div className="notificationInput">{contactNo}</div>
+              <div className="notificationHeading">
+                <h1 className="heading">Email: </h1>
+                <p className="para">{selectedNotification.email}</p>
               </div>
-
-              <div className="notificationLine">
-                <div className="notificationLabel">Stock Name:</div>
-                <div className="notificationInput">
-                  {selectedNotification.stockname}
-                </div>
+              <div className="notificationHeading">
+                <h1 className="heading">Contact No: </h1>
+                <p className="para">{selectedNotification.contact}</p>
               </div>
-
-              <div className="notificationLine">
-                <div className="notificationLabel">Stock Price:</div>
-                <div className="notificationInput">
-                  {selectedNotification.stockPrice}
-                </div>
+              <div className="notificationHeading">
+                <h1 className="heading">Account Type:</h1>
+                <p className="para">{selectedNotification.accountType}</p>
               </div>
-
-              <div className="notificationLine">
-                <div className="notificationLabel">Stock Quantity:</div>
-                <div className="notificationInput">
-                  {selectedNotification.qty}
-                </div>
+              <div className="notificationHeading">
+                <h1 className="heading">Stock: </h1>
+                <p className="para">{selectedNotification.stockName}</p>
               </div>
-
-              <div className="notificationLine">
-                <div className="notificationLabel">Transaction Date:</div>
-                <div className="notificationInput">
-                  {selectedNotification.transactionDate}
-                </div>
+              <div className="notificationHeading">
+                <h1 className="heading">Price: </h1>
+                <p className="para">{selectedNotification.price}</p>
+              </div>
+              <div className="notificationHeading">
+                <h1 className="heading">Quantity:</h1>
+                <p className="para">{selectedNotification.qty}</p>
+              </div>
+              <div className="notificationHeading">
+                <h1 className="heading">Reason: </h1>
+                <p className="para">{selectedNotification.reason}</p>
               </div>
             </div>
-=======
-          <div className="notification-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal-button" onClick={closeModal}>✖</button>
-            <h3 className="mb-4">Notification Details</h3>
-            <p><strong>Notification about:</strong> {selectedNotification.actionType}</p>
-            <p><strong>Message:</strong> {selectedNotification?.user.email}</p>
-            <p><strong>Details:</strong> {selectedNotification?._id || "No additional details available."}</p>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
           </div>
         </div>
       )}

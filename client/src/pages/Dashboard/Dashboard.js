@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 // import React, { useEffect, useState } from "react";
 // import { useSelector, useDispatch } from "react-redux";
 // import { useNavigate } from "react-router-dom";
@@ -263,7 +261,6 @@
 
 
 
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Table, Pagination } from "react-bootstrap";

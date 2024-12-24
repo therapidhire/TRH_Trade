@@ -30,8 +30,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockRoutes);
 app.use('/api/notification', notificationRouter);
 app.use('/api/stock-transactions', stockTransactionRoutes);
-app.use('/api/users',authRouter);
-// app.use('/api/notification/send-message', notificationRouter)
+app.use('/api/auth', authRouter);
+
+
+
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

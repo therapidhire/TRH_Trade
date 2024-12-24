@@ -61,8 +61,6 @@
 // };
 
 // export default TableComponent;
-<<<<<<< HEAD
-=======
 
 
 // // import React, { useEffect, useState } from "react";
@@ -157,4 +155,3 @@
 
 // // export default TableComponent;
 
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756

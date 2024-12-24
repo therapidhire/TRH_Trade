@@ -1,17 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-<<<<<<< HEAD
-import { postRequest } from "../../utils/api"; // Import API functions
-
-const Login = () => {
-  const [credentials, setCredentials] = useState({ email: ""});
-=======
 import { postRequest } from "../../components/Axios/api"; // Import API functions
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
+  const [credentials, setCredentials] = useState({ email: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -24,20 +17,12 @@ const Login = () => {
     try {
       // Call the login API
       // const response = await postRequest("/user/login", credentials);
-<<<<<<< HEAD
-      const response = await postRequest("/users/user/login", credentials);
+      const response = await postRequest("auth/user/login", credentials);
 
-      // Save token or user details in local storage
+      console.log("user Login details", response.data);
+
       localStorage.setItem("userId", response.data.userId)
       localStorage.setItem("role", response.data.userRole); // Save email
-=======
-      const response = await postRequest("/users/login", credentials);
-
-      // Save token or user details in local storage
-      localStorage.setItem("token", response.data.token); // Assuming API returns a token
-      localStorage.setItem("userId", response.data.userId)
-      localStorage.setItem("role", response.data.roles); // Save email
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
       // Navigate to dashboard
       navigate("/dashboard");
@@ -67,48 +52,19 @@ const Login = () => {
               required
             />
           </div>
-<<<<<<< HEAD
-          {/* <div className="mb-3">
-=======
-          <div className="mb-3">
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="form-control"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-            />
-<<<<<<< HEAD
-          </div> */}
-=======
-          </div>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
+         
           <button type="submit" className="btn btn-primary w-100">
             Login
           </button>
         </form>
-<<<<<<< HEAD
-        {/* <div className="text-center mt-3">
-=======
         <div className="text-center mt-3">
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
           <p className="mb-0">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary">
               Sign up
             </Link>
           </p>
-<<<<<<< HEAD
-        </div> */}
-=======
         </div>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
       </div>
     </div>
   );

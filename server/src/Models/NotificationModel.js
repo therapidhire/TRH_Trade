@@ -21,13 +21,6 @@ const notificationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-<<<<<<< HEAD
-  isRead:{
-    type:Boolean,
-    default:false,
-  }
-=======
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 });
 
 const Notification = mongoose.model("Notification", notificationSchema);

@@ -13,76 +13,9 @@ const Positions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
-<<<<<<< HEAD
   const itemsPerPage = 10;
 
   const userId = localStorage.getItem("userId");
-
-  useEffect(() => {
-    const fetchPositions = async () => {
-      try {
-        console.log("Fetching holdings for user id:", userId);
-=======
-  const itemsPerPage = 5;
-
-  const userId = localStorage.getItem("userId");
-
-  // useEffect(() => {
-  //   const fetchPositions = async () => {
-  //     try {
-  //       console.log("Fetching positions for user id:", userId);
-
-  //       // Fetch stock transactions for the user
-  //       const response = await axios.get(
-  //         `http://localhost:8080/api/stock-transactions/transaction/${userId}`
-  //       );
-
-  //       const positionsData = response.data;
-  //       console.log("positionsData", positionsData)
-
-  //       // Filter positions created by the user
-  //       const filtered = positionsData.filter(
-  //         (position) => position.CreatedBy === userId
-  //       );
-
-  //       // Map over positions to format for table columns
-  //       const formattedPositions = await Promise.all(
-  //         filtered.map(async (position) => {
-  //           const stockResponse = await axios.get(
-  //             `http://localhost:8080/api/stocks/${position.StockId}`
-  //           );
-
-  //           const stockData = stockResponse.data;
-  //           console.log("stockData", stockData)
-
-  //           const newStockData = stockData.filter((pos)=>{
-  //             calculateAge(position.CreatedAt) <= 1;
-  //           })
-            
-            
-
-  //           return {
-  //             symbol: newStockData.Symbol,
-  //             name: newStockData.StockName,
-  //             quantity: position.Quantity,
-  //             price: position.Price,
-  //             totalPrice: (position.Quantity * position.Price).toFixed(2),
-  //             age: calculateAge(position.CreatedAt),
-  //           };
-  //         })
-  //       );
-
-  //       setPositions(formattedPositions);
-  //       setFilteredPositions(formattedPositions);
-
-  //       console.log("Formatted Positions:", formattedPositions);
-  //     } catch (error) {
-  //       console.error("Error fetching positions:", error);
-  //     }
-  //   };
-
-  //   fetchPositions();
-  // }, [userId]);
 
   
   
@@ -90,7 +23,6 @@ const Positions = () => {
     const fetchPositions = async () => {
       try {
         console.log("Fetching positions for user id:", userId);
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   
         // Fetch stock transactions for the user
         const response = await axios.get(
@@ -113,11 +45,7 @@ const Positions = () => {
             );
   
             const stockData = stockResponse.data;
-<<<<<<< HEAD
-            console.log("stockData in holding:- ", stockData);
-=======
             console.log("stockData in position:- ", stockData);
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
             // Calculate the age and filter for age <= 1 day
             const age = calculateAge(position.CreatedAt);
             if (age > 1) {
@@ -141,11 +69,7 @@ const Positions = () => {
         setPositions(validPositions);
         setFilteredPositions(validPositions);
   
-<<<<<<< HEAD
-        console.log("Filtered and Formatted Holding:", validPositions);
-=======
         console.log("Filtered and Formatted Positions:", validPositions);
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
       } catch (error) {
         console.error("Error fetching positions:", error);
       }
@@ -163,32 +87,9 @@ const Positions = () => {
     return ageInDays; // Return the age as a number
   };
   
-<<<<<<< HEAD
- 
-=======
   
-  // const calculateAge = (purchaseDate) => {
-  //   const currentDate = new Date();
-  //   const purchase = new Date(purchaseDate);
-  //   const ageInDays = Math.ceil(
-  //     (currentDate - purchase) / (1000 * 60 * 60 * 24)
-  //   );
-  //   return `${ageInDays} days`;
-  // };
-
-  // const handleTrade = (stock, actionType) => {
-  //   console.log("stock in posiotion:-- ", stock);
-  //   if (actionType === "buy") {
-  //     localStorage.setItem("buy", JSON.stringify(stock));
-  //     navigate(`/trade/buy/${stock.name}`);
-  //   } else if (actionType === "sell") {
-  //     localStorage.setItem("sell", JSON.stringify(stock));
-  //     navigate(`/trade/sell/${stock.name}`);
-  //   }
-  // };
 
 
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   const handleTrade = async (stock, actionType) => {
 
     console.log("stock in posiotion:-- ", stock);
@@ -254,17 +155,11 @@ const Positions = () => {
 
   const columns = [
     "Symbol",
-<<<<<<< HEAD
     "Holding Name",
     "Quantity",
     "Price",
-=======
-    "Position Name",
-    "Quantity",
-    "Buy Price",
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
     "Total Amount",
-    "Buying Age",
+    "Age",
   ];
   const columnKeys = [
     "symbol",
@@ -279,21 +174,13 @@ const Positions = () => {
     <>
       <Header />
       <div className="container mt-5">
-<<<<<<< HEAD
         <h2 className="text-center mb-4">Your Holdings</h2>
-=======
-        <h2 className="text-center mb-4">Your Positions</h2>
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
         <Row>
           <Col sm={6}>
             <Form.Control
               type="text"
-<<<<<<< HEAD
               placeholder="Filter by Holding name"
-=======
-              placeholder="Filter by Position name"
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
               value={holdingNameFilter}
               onChange={(e) => handleFilter(e.target.value)}
               className="mb-5"

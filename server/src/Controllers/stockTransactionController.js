@@ -8,6 +8,7 @@ const { saveRegistrationNotification,
   getAllNotifications, } = require("../Controllers/notificationController");
 const mongoose = require('mongoose');
 
+
 // const createTransaction = async (req, res) => {
 //   try {
 //     const {
@@ -82,39 +83,21 @@ const mongoose = require('mongoose');
 //       }
 //     } else if (TransactionType === "sell") {
 //       // Handle Sell Transaction
-//       // console.log("before findOne")
 //       let buyTransaction = await StockTransaction.findOne({
 //         UserId,
 //         StockId,
 //         TransactionType: "buy",
 //       });
-//       // console.log("after findOne")
+
 //       if (!buyTransaction || buyTransaction.Quantity < Quantity) {
 //         return res.status(400).json({
 //           message: "Insufficient stock to sell or no buy transaction found",
 //         });
 //       }
-//       // console.log("at the end")
+
 //       // Adjust buy transaction Quantity
 //       const remainingQuantity = buyTransaction.Quantity - Quantity;
 //       const totalValue = remainingQuantity * buyTransaction.Price; // Calculate remaining total value
-//       console.log("remainingQuantity  :------", remainingQuantity );
-//       // if (remainingQuantity > 0) {
-//       //   console.log("remainingQuantity  if:------", remainingQuantity );
-//       //   const averagePrice = totalValue / remainingQuantity;
-//       //   buyTransaction.Quantity = remainingQuantity;
-//       //   buyTransaction.Price = averagePrice;
-//       //   buyTransaction.AccountType = AccountType;
-//       //   buyTransaction.Reason = Reason;
-//       //   buyTransaction.CreatedBy = CreatedBy;
-//       // } else {
-//       //   console.log("remainingQuantity  else:------", remainingQuantity );
-//       //   // If all stock is sold, remove the buy transaction
-//       //  const tmpId = buyTransaction._id.toString();
-//       //   await StockTransaction.deleteOne({tmpId });
-//       // }
-
-//       console.log("buyTransaction:------", buyTransaction);
 
 //       if (remainingQuantity > 0) {
 //         const averagePrice = totalValue / remainingQuantity;
@@ -123,12 +106,10 @@ const mongoose = require('mongoose');
 //         buyTransaction.AccountType = AccountType;
 //         buyTransaction.Reason = Reason;
 //         buyTransaction.CreatedBy = CreatedBy;
-//         await buyTransaction.save();
 //       } else {
-//         const tmpId = buyTransaction._id.toString();
-//         await StockTransaction.deleteOne({ _id: tmpId });
+//         // If all stock is sold, remove the buy transaction
+//         await buyTransaction.remove();
 //       }
-      
 
 //       await buyTransaction.save();
 
@@ -318,49 +299,8 @@ const getAllTransactions = async (req, res) => {
   }
 };
 
-// Get a specific stock transaction by ID
-// const getTransactionById = async (req, res) => {
-//   try {
-//     const transaction = await StockTransaction.findById(req.params.id)
-//       .populate('StockId', 'Symbol StockName')
-//       .populate('UserId', 'Firstname Lastname');
-//     if (!transaction) {
-//       return res.status(404).json({ error: 'Transaction not found' });
-//     }
-//     res.status(200).json(transaction);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 
-
-// const getTransactionById = async (req, res) => {
-//   try {
-//     // Extract StockId from request params or query
-//     const { stockId } = req.params;
-//     console.log("stockId:-- ", stockId);
-
-//     if (!stockId) {
-//       return res.status(400).json({ message: 'StockId is required' });
-//     }
-
-//     // Find the transaction by StockId
-//     const transaction = await StockTransaction.findOne({ 'StockId._id':stockId });
-// // const transaction = await StockTransaction.findOne({ 'StockId._id': mongoose.Types.ObjectId(stockId) });
-//     console.log("Transaction:- ",transaction);
-
-//     if (!transaction) {
-//       return res.status(404).json({ message: 'Transaction not found for the given StockId' });
-//     }
-
-//     // Respond with the transaction details
-//     res.status(200).json(transaction);
-//   } catch (error) {
-//     console.error('Error fetching transaction:', error);
-//     res.status(500).json({ message: 'Internal server error', error: error.message });
-//   }
-// };
 
 
 const getTransactionById = async (req, res) => {
@@ -368,7 +308,7 @@ const getTransactionById = async (req, res) => {
     // Extract StockId from request params
     const { stockId } = req.params;
 
-    // console.log("StockId:-- ", stockId);
+    console.log("StockId:-- ", stockId);
 
     if (!stockId) {
       return res.status(400).json({ message: 'StockId is required' });
@@ -385,7 +325,7 @@ const getTransactionById = async (req, res) => {
       .populate('UserId') // Optional: populate related User details
       .populate('CreatedBy UpdatedBy'); // Optional: populate CreatedBy/UpdatedBy
 
-    // console.log("Transaction:- ", transaction);
+    console.log("Transaction:- ", transaction);
 
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found for the given StockId' });
@@ -401,26 +341,14 @@ const getTransactionById = async (req, res) => {
 
 
 
-
-// const getAllTransactionByUserId = async (req, res)=>{
-//   try{
-//     const userId = req.params;
-//     const AllTransactionOfuser = await StockTransaction.find({'UserId._id': userId});
-//     console.log("AllTransactionOfuser:- ",AllTransactionOfuser);
-//     res.status(200).json(AllTransactionOfuser);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// }
-
 const getAllTransactionByUserId = async (req, res) => {
   try {
     const { userId } = req.params; // Extract userId from the route parameters
-    // console.log("userId:--", userId);
+    console.log("userId:--", userId);
 
     // Query the database using the correct field name "UserId"
     const transactions = await StockTransaction.find({ UserId: userId });
-    // console.log("transactions:--", transactions);
+    console.log("transactions:--", transactions);
 
     // Return the array of transactions
     res.status(200).json(transactions);

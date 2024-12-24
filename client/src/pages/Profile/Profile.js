@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 // import React, { useState, useEffect } from "react";
 // import {
 //   Container,
@@ -363,7 +361,6 @@
 
 
 
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -413,8 +410,6 @@ const Profile = () => {
     }
   };
 
-<<<<<<< HEAD
-=======
   // const handleDeleteUser = async ()=>{
   //   try{
   //     const response = await axios.delete(`http://localhost:8080/api/users/${userId}`);
@@ -423,7 +418,6 @@ const Profile = () => {
   //     console.error("Error in delete user:", error);
   //   }
   // }
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
 
   // Fetch all stocks from the API
   const fetchStocks = async () => {
@@ -484,11 +478,7 @@ const Profile = () => {
 
   // Fetch data on component mount
   useEffect(() => {
-<<<<<<< HEAD
     if (userRole === "Admin" || userRole === "SuperAdmin") {
-=======
-    if (userRole === "Admin") {
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
       fetchUsers();
       fetchStocks();
     } else if (userRole === "User") {
@@ -496,8 +486,6 @@ const Profile = () => {
     }
   }, [userRole]);
 
-<<<<<<< HEAD
-=======
   // return (
   //   <>
   //     <Header />
@@ -606,16 +594,11 @@ const Profile = () => {
   //   </>
   // );
 
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
   return (
     <>
       <Header />
       <Container fluid className="mt-4">
-<<<<<<< HEAD
         {(userRole === "Admin" || userRole === "SuperAdmin") ? (
-=======
-        {userRole === "Admin" ? (
->>>>>>> 09a184939353169bffaadfb2a6670fe417392756
           <Row>
             <Col md={2} className="bg-light p-3">
               <Button

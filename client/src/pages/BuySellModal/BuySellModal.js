@@ -32,7 +32,6 @@ const BuySellModal = () => {
         console.log("stock response for sell and buy", stockResponse.data)
         setAvailableQty(stockResponse.data.Quantity)
         setSingleStock(stockResponse.data);
-        console.log("singleStock", singleStock);
       } catch (error) {
         console.error("Error fetching stock details:", error);
       }
@@ -86,10 +85,9 @@ const BuySellModal = () => {
     setRemainingStock(availableQty);
   };
 
-  
   const handleSubmit = async () => {
     const endpoint = "http://localhost:8080/api/stock-transactions";
-  
+
     const payload = {
       StockId: stockId,
       UserId: userId,
@@ -98,36 +96,20 @@ const BuySellModal = () => {
       Quantity: qty,
       AccountType: accountType,
       Reason: description,
-      CreatedBy: userId,
+      CreatedBy:userId
     };
-  
-    const whatsappNotification = async () => {
-      try {
-        const response = await axios.post(
-          `http://localhost:8080/api/notification/send-message`,
-          {
-            message: `Transaction Notification: ${action === "buy" ? "Bought" : "Sold"} ${qty} shares of ${singleStock?.StockId?.StockName || "stock"} at ₹${stockPrice}.`,
-          }
-        );
-        console.log("WhatsApp notification response:", response.data);
-      } catch (err) {
-        console.error("Error sending WhatsApp notification:", err.message);
-      }
-    };
-  
+
     try {
       const response = await axios.post(endpoint, payload);
-  
-      console.log(`${action === "buy" ? "Buy" : "Sell"} Success tr------------------:`, response.data);
-  
+
+      console.log(`${action === "buy" ? "Buy" : "Sell"} Success:`, response.data);
+
       alert(
         `${
           action === "buy" ? "Bought" : "Sold"
         } ${qty} shares of ${singleStock?.StockId?.StockName || "stock"} at ₹${stockPrice} successfully!`
       );
-  
-      await whatsappNotification(); // Call the WhatsApp notification function after a successful transaction
-  
+
       localStorage.removeItem(action);
       navigate("/dashboard");
     } catch (error) {
@@ -135,8 +117,6 @@ const BuySellModal = () => {
       alert(`Error: Unable to ${action}. Please try again.`);
     }
   };
-  
-  
 
   return (
     <>
