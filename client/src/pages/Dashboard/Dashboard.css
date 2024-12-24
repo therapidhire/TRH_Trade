@@ -1,0 +1,75 @@
+/* Dashboard Styles */
+.dashboard-container {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  /* Stocks Table */
+  .stocks-table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+  }
+  
+  .stocks-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .stocks-table th, .stocks-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .stocks-table th {
+    background-color: #007bff; /* Blue background for header */
+    color: white;
+  }
+  
+  .stocks-table td {
+    background-color: #f8f8f8;
+  }
+  
+  /* Action Buttons */
+  .action-buttons-container {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .buy-button {
+    background-color: #007bff; /* Blue for Buy */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .buy-button:hover {
+    background-color: #005bb5; /* Darker blue on hover */
+  }
+  
+  .buy-button:active {
+    background-color: #004494; /* Even darker blue on click */
+  }
+  
+  .sell-button {
+    background-color: #f57300; /* Orange for Sell */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sell-button:hover {
+    background-color: #e65a00; /* Darker orange on hover */
+  }
+  
+  .sell-button:active {
+    background-color: #cc4f00; /* Even darker orange on click */
+  }
+  

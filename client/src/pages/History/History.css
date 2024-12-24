@@ -1,0 +1,14 @@
+.uperHistoryContainer{
+    width:100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.historyContainer{
+    width: 90%;
+}
+.graphBox{
+    background-color: red;
+}
+
