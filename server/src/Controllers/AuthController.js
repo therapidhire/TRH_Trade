@@ -24,7 +24,7 @@ const login = async (req, res) => {
       }
       const roleId= user.RoleId.toString();
       console.log("roleId", roleId);
-      const userRole = await Role.findOneAndUpdate({roleId});
+      const userRole = await Role.findOne({_id:roleId});
       console.log("userRole", userRole);
       if(!userRole){
         return res.status(404).send({
@@ -33,8 +33,6 @@ const login = async (req, res) => {
             });
       }
 
-  
-     
       return res.status(200).send({
         status: 200,
         message: "Login successful.",

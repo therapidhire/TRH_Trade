@@ -1,13 +1,14 @@
-const StockTransaction = require('../Models/StockTransaction');
-const User = require('../Models/UserModel');
-const Notification = require('../Models/NotificationModel');
-const { saveRegistrationNotification,
+const StockTransaction = require("../Models/StockTransaction");
+const User = require("../Models/UserModel");
+const Notification = require("../Models/NotificationModel");
+const {
+  saveRegistrationNotification,
   saveLoginNotification,
   saveBuyNotification,
   saveSellNotification,
-  getAllNotifications, } = require("../Controllers/notificationController");
-const mongoose = require('mongoose');
-
+  getAllNotifications,
+} = require("../Controllers/notificationController");
+const mongoose = require("mongoose");
 
 // const createTransaction = async (req, res) => {
 //   try {
@@ -143,13 +144,7 @@ const mongoose = require('mongoose');
 //   }
 // };
 
-
-
-
 // Get all stock transactions
-
-
-
 
 const createTransaction = async (req, res) => {
   try {
@@ -167,7 +162,14 @@ const createTransaction = async (req, res) => {
     console.log("createTransaction:-- ", req.body);
 
     // Validate required fields
-    if (!UserId || !StockId || !TransactionType || !AccountType || !Reason || !CreatedBy) {
+    if (
+      !UserId ||
+      !StockId ||
+      !TransactionType ||
+      !AccountType ||
+      !Reason ||
+      !CreatedBy
+    ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -183,7 +185,8 @@ const createTransaction = async (req, res) => {
         // Calculate new average Price
         const totalQuantity = existingTransaction.Quantity + Quantity;
         const totalValue =
-          existingTransaction.Quantity * existingTransaction.Price + Quantity * Price;
+          existingTransaction.Quantity * existingTransaction.Price +
+          Quantity * Price;
         const averagePrice = totalValue / totalQuantity;
 
         // Update existing transaction
@@ -275,7 +278,9 @@ const createTransaction = async (req, res) => {
         message: "Sell transaction created successfully",
         sellTransaction,
         updatedBuyTransaction:
-          remainingQuantity > 0 ? buyTransaction : "Buy transaction removed after sell",
+          remainingQuantity > 0
+            ? buyTransaction
+            : "Buy transaction removed after sell",
       });
     } else {
       return res.status(400).json({ message: "Invalid transaction type" });
@@ -286,24 +291,104 @@ const createTransaction = async (req, res) => {
   }
 };
 
-
-
 const getAllTransactions = async (req, res) => {
   try {
     const transactions = await StockTransaction.find()
-      .populate('StockId', 'Symbol StockName') // Populate stock details
-      .populate('UserId', 'Firstname Lastname'); // Populate user details
+      .populate("StockId", "Symbol StockName") // Populate stock details
+      .populate("UserId", "Firstname Lastname"); // Populate user details
     res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+// const getTransactionById = async (req, res) => {
+//   try {
+//     // Extract StockId from request params
+//     const { stockId } = req.params;
+//     const userId = req.headers.userid;
 
+//     console.log("StockId:-- ", stockId, "+++++:  ", userId);
+
+//     if (!stockId) {
+//       return res.status(400).json({ message: "StockId is required", success:false });
+//     }
+
+//     // Validate the StockId format
+//     if (!mongoose.Types.ObjectId.isValid(stockId)) {
+//       return res.status(400).json({ message: "Invalid StockId format",success:false });
+//     }
+
+//     // Find the transaction by StockId
+//     const transaction = await StockTransaction.findOne({
+//       StockId: stockId,
+//       UserId: userId,
+//     })
+//       .populate("StockId") // Optional: populate related Stock details
+//       .populate("UserId") // Optional: populate related User details
+//       .populate("CreatedBy UpdatedBy"); // Optional: populate CreatedBy/UpdatedBy
+
+//     console.log("Transaction:- ", transaction);
+
+//     if (!transaction) {
+//       return res
+//         .status(404)
+//         .json({ message: "Transaction not found for the given StockId", success:false });
+//     }
+
+//     // Respond with the transaction details
+//     res.status(200).json({transaction,success:true});
+//   } catch (error) {
+//     console.error("Error fetching transaction:", error);
+//     res
+//       .status(500)
+//       .json({ message: "Internal server error", error: error.message,success:false });
+//   }
+// };
 
 
 
 const getTransactionById = async (req, res) => {
+  try {
+    const { stockId } = req.params;
+    const userId = req.headers.userid;
+
+    console.log("StockId:-- ", stockId, "+++++:  ", userId);
+
+    if (!stockId) {
+      return res.status(400).json({ message: "StockId is required", success: false });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(stockId)) {
+      return res.status(400).json({ message: "Invalid StockId format", success: false });
+    }
+
+    const transaction = await StockTransaction.findOne({
+      StockId: stockId,
+      UserId: userId,
+    })
+      .populate("StockId")
+      .populate("UserId")
+      .populate("CreatedBy UpdatedBy");
+
+    console.log("Transaction:- ", transaction);
+
+    if (!transaction) {
+      // Return a response indicating no transaction found
+      return res.status(200).json({ message: "No transaction found", success: false });
+    }
+
+    res.status(200).json({ transaction, success: true });
+  } catch (error) {
+    console.error("Error fetching transaction:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message, success: false });
+  }
+};
+
+
+
+//for notification 
+const getTransactionForNotificationById = async (req, res) => {
   try {
     // Extract StockId from request params
     const { stockId } = req.params;
@@ -315,12 +400,12 @@ const getTransactionById = async (req, res) => {
     }
 
     // Validate the StockId format
-    if (!mongoose.Types.ObjectId.isValid(stockId)) {
-      return res.status(400).json({ message: 'Invalid StockId format' });
-    }
+    // if (!mongoose.Types.ObjectId.isValid(stockId)) {
+    //   return res.status(400).json({ message: 'Invalid StockId format' });
+    // }
 
     // Find the transaction by StockId
-    const transaction = await StockTransaction.findOne({ StockId: stockId })
+    const transaction = await StockTransaction.findOne({ StockId:stockId })
       .populate('StockId') // Optional: populate related Stock details
       .populate('UserId') // Optional: populate related User details
       .populate('CreatedBy UpdatedBy'); // Optional: populate CreatedBy/UpdatedBy
@@ -338,7 +423,6 @@ const getTransactionById = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
-
 
 
 const getAllTransactionByUserId = async (req, res) => {
@@ -359,9 +443,6 @@ const getAllTransactionByUserId = async (req, res) => {
   }
 };
 
-
-
-
 // Update a stock transaction
 const updateTransaction = async (req, res) => {
   try {
@@ -371,9 +452,11 @@ const updateTransaction = async (req, res) => {
       { new: true }
     );
     if (!transaction) {
-      return res.status(404).json({ error: 'Transaction not found' });
+      return res.status(404).json({ error: "Transaction not found" });
     }
-    res.status(200).json({ message: 'Transaction updated successfully', transaction });
+    res
+      .status(200)
+      .json({ message: "Transaction updated successfully", transaction });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -384,9 +467,9 @@ const deleteTransaction = async (req, res) => {
   try {
     const transaction = await StockTransaction.findByIdAndDelete(req.params.id);
     if (!transaction) {
-      return res.status(404).json({ error: 'Transaction not found' });
+      return res.status(404).json({ error: "Transaction not found" });
     }
-    res.status(200).json({ message: 'Transaction deleted successfully' });
+    res.status(200).json({ message: "Transaction deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -399,4 +482,5 @@ module.exports = {
   updateTransaction,
   deleteTransaction,
   getAllTransactionByUserId,
+  getTransactionForNotificationById,
 };

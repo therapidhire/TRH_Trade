@@ -9,7 +9,7 @@ const Header = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-
+  const userId = localStorage.getItem("userId");
   const userRole = localStorage.getItem("role");
   const location = useLocation();
 
@@ -43,9 +43,9 @@ const Header = () => {
 
       // Fetch stock details
       const stockDetailsResponse = await axios.get(
-        `http://localhost:8080/api/stock-transactions/${stock_id}`
+        `http://localhost:8080/api/stock-transactions/notification/${stock_id}`
       );
-      console.log("Stock Details:", stockDetailsResponse.data);
+      console.log("Stock Details newww:", stockDetailsResponse.data);
 
       // Mark the notification as read
       await axios.put(
