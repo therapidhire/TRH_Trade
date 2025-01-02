@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { postRequest } from "../../components/Axios/api"; // Import API functions
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState({ email: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -17,12 +17,12 @@ const Login = () => {
     try {
       // Call the login API
       // const response = await postRequest("/user/login", credentials);
-      const response = await postRequest("/users/login", credentials);
+      const response = await postRequest("auth/user/login", credentials);
 
-      // Save token or user details in local storage
-      localStorage.setItem("token", response.data.token); // Assuming API returns a token
+      console.log("user Login details", response.data);
+
       localStorage.setItem("userId", response.data.userId)
-      localStorage.setItem("role", response.data.roles); // Save email
+      localStorage.setItem("role", response.data.userRole); // Save email
 
       // Navigate to dashboard
       navigate("/dashboard");
@@ -52,20 +52,7 @@ const Login = () => {
               required
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="form-control"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+         
           <button type="submit" className="btn btn-primary w-100">
             Login
           </button>
