@@ -6,6 +6,7 @@ import "./Header.css";
 
 const Header = () => {
   const [notifications, setNotifications] = useState([]);
+  const [mappedNotification, setMappedNotification] = useState({});
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -14,18 +15,51 @@ const Header = () => {
   const location = useLocation();
 
   // Function to fetch all notifications
-  const fetchNotifications = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8080/api/notification/getAllNotifications"
-      );
+  // const fetchNotifications = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:8080/api/notification/getAllNotifications"
+  //     );
 
-      console.log("get all Notifications", response.data.data);
-      setNotifications(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
+  //     const allNotification = response.data.data;
+  //     console.log("get all Notifications", response.data.data);
+  //     setNotifications(response.data.data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching notifications:", error);
+  //   }
+  // };
+
+
+  // const mappedNotification = {};
+
+const fetchNotifications = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:8080/api/notification/getAllNotifications"
+    );
+
+    const allNotification = response.data.data;
+    console.log("get all Notifications", allNotification);
+    const mappedNotificationtmp={};
+    // Use `Promise.all` to ensure all async operations complete
+    await Promise.all(
+      allNotification.map(async (notification) => {
+        const stockResponse = await axios.get(
+          `http://localhost:8080/api/stock-transactions/notification/${notification.details.stockId}`
+        );
+        console.log("Stock Details newww:", stockResponse.data);
+        mappedNotificationtmp[notification.id] = stockResponse.data;
+      })
+    );
+
+    console.log("Mapped Notifications:", mappedNotificationtmp);
+    setMappedNotification(mappedNotificationtmp);
+    setNotifications(allNotification || []);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+  }
+};
+
 
   useEffect(() => {
     fetchNotifications(); // Fetch notifications on component mount
@@ -56,7 +90,8 @@ const Header = () => {
       // Prepare notification details
       const NotificationDetails = {
         actionType: stockDetailsResponse.data.TransactionType || "N/A",
-        name: stockDetailsResponse.data.UserId?.Firstname || "N/A",
+        firstname: stockDetailsResponse.data.UserId?.Firstname || "N/A",
+        lastname: stockDetailsResponse.data.UserId?.Lastname || "N/A",
         email: stockDetailsResponse.data.UserId?.UserEmail || "N/A",
         contact: stockDetailsResponse.data.UserId?.ContactNo || "N/A",
         accountType: stockDetailsResponse.data.AccountType || "N/A",
@@ -148,8 +183,13 @@ const Header = () => {
                               display: "flex",
                             }}
                           >
-                            <p>{notif.actionType} Action is Performed:</p>
-                            <p
+                            <p style={{
+                              fontWeight:"400"
+                            }}>
+
+                            {mappedNotification[notif.id].TransactionType}: {mappedNotification[notif.id].Quantity} stock of {mappedNotification[notif.id].StockId.StockName} are {mappedNotification[notif.id].TransactionType} at the price {mappedNotification[notif.id].Price}
+                            </p>
+                            {/* <p
                               style={{
                                 fontSize: "12px",
                                 color: "orange",
@@ -158,7 +198,7 @@ const Header = () => {
                               }}
                             >
                               See Details
-                            </p>
+                            </p> */}
                           </div>
                         </div>
                       ))}
@@ -200,11 +240,16 @@ const Header = () => {
           <li
             className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
           >
-            <Link to="/" className="nav-link" style={{
-              color: "blue",
-              fontWeight:"bold",
-              fontSize:"25px"
-            }} onClick={logoutuser}>
+            <Link
+              to="/"
+              className="nav-link"
+              style={{
+                color: "blue",
+                fontWeight: "bold",
+                fontSize: "25px",
+              }}
+              onClick={logoutuser}
+            >
               <IoIosLogOut />
             </Link>
           </li>
@@ -229,7 +274,10 @@ const Header = () => {
               </div>
               <div className="notificationHeading">
                 <h1 className="heading">User name:</h1>
-                <p className="para">{selectedNotification.name}</p>
+                <p className="para">
+                  {selectedNotification.firstname}{" "}
+                  {selectedNotification.lastname}
+                </p>
               </div>
               <div className="notificationHeading">
                 <h1 className="heading">Email: </h1>

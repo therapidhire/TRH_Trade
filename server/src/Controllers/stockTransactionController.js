@@ -371,7 +371,7 @@ const getTransactionById = async (req, res) => {
       .populate("UserId")
       .populate("CreatedBy UpdatedBy");
 
-    console.log("Transaction:- ", transaction);
+    // console.log("Transaction:- ", transaction);
 
     if (!transaction) {
       // Return a response indicating no transaction found
@@ -393,7 +393,7 @@ const getTransactionForNotificationById = async (req, res) => {
     // Extract StockId from request params
     const { stockId } = req.params;
 
-    console.log("StockId:-- ", stockId);
+    // console.log("StockId:-- ", stockId);
 
     if (!stockId) {
       return res.status(400).json({ message: 'StockId is required' });
@@ -410,7 +410,7 @@ const getTransactionForNotificationById = async (req, res) => {
       .populate('UserId') // Optional: populate related User details
       .populate('CreatedBy UpdatedBy'); // Optional: populate CreatedBy/UpdatedBy
 
-    console.log("Transaction:- ", transaction);
+    // console.log("Transaction:- ", transaction);
 
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found for the given StockId' });
@@ -428,11 +428,11 @@ const getTransactionForNotificationById = async (req, res) => {
 const getAllTransactionByUserId = async (req, res) => {
   try {
     const { userId } = req.params; // Extract userId from the route parameters
-    console.log("userId:--", userId);
+    // console.log("userId:--", userId);
 
     // Query the database using the correct field name "UserId"
     const transactions = await StockTransaction.find({ UserId: userId });
-    console.log("transactions:--", transactions);
+    // console.log("transactions:--", transactions);
 
     // Return the array of transactions
     res.status(200).json(transactions);

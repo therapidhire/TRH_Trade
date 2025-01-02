@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Table, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axios from "axios";
+import '../Position/Positions.css'
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -156,8 +157,8 @@ const Dashboard = () => {
             </Row>
           </Form>
           <div>
-            <strong>Remaining Money:</strong>
-            <p className="text-success">${remainingMoney.toFixed(2)}</p>
+            {/* <strong>Remaining Money:</strong>
+            <p className="text-success">${remainingMoney.toFixed(2)}</p> */}
           </div>
         </div>
 
@@ -190,17 +191,19 @@ const Dashboard = () => {
                 <td>{stock.name}</td>
                 <td>
                   <button
-                    className="btn btn-primary me-2"
+                    className="actionBtn"
+                    style={{
+                      // fontWeight: "bold",
+                      backgroundColor:"rgb(29, 128, 241)"
+                    }}
                     onClick={() => handleTrade(stock, "buy")}
                   >
                     Buy
                   </button>
                   <button
-                    className="btn"
+                    className="actionBtn"
                     style={{
-                      backgroundColor: "#f57300",
-                      fontWeight: "bold",
-                      color: "white",
+                      backgroundColor: "#f57300"
                     }}
                     onClick={() => handleTrade(stock, "sell")}
                   >

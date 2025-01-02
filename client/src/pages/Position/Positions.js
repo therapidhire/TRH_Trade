@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axios from "axios";
+import '../Position/Positions.css'
+
 
 const Positions = () => {
   const navigate = useNavigate();
@@ -215,18 +217,20 @@ const Positions = () => {
                 <td>{position.totalPrice}</td>
                 <td>{position.age}</td>
                 <td>
-                  <button
-                    className="btn btn-primary"
+                <button
+                    className="actionBtn"
+                    style={{
+                      // fontWeight: "bold",
+                      backgroundColor:"rgb(29, 128, 241)"
+                    }}
                     onClick={() => handleTrade(position, "buy")}
                   >
                     Buy
                   </button>
                   <button
-                    className="btn m-2"
+                    className="actionBtn"
                     style={{
-                      backgroundColor: "#f57300",
-                      fontWeight: "bold",
-                      color: "white",
+                      backgroundColor: "#f57300"
                     }}
                     onClick={() => handleTrade(position, "sell")}
                   >

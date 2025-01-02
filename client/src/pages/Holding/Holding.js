@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axios from "axios";
+import '../Position/Positions.css'
 
 const Positions = () => {
   const navigate = useNavigate();
@@ -17,33 +18,32 @@ const Positions = () => {
 
   const userId = localStorage.getItem("userId");
 
-  
-  
   useEffect(() => {
     const fetchPositions = async () => {
       try {
         console.log("Fetching positions for user id:", userId);
-  
+
         // Fetch stock transactions for the user
         const response = await axios.get(
           `http://localhost:8080/api/stock-transactions/transaction/${userId}`
         );
-  
+
         const positionsData = response.data;
         console.log("positionsData", positionsData);
-  
+
         // Filter positions created by the user
         const filtered = positionsData.filter(
-          (position) => (position.CreatedBy === userId && position.TransactionType == 'buy')
+          (position) =>
+            position.CreatedBy === userId && position.TransactionType == "buy"
         );
-  
+
         // Map over positions to format for table columns
         const formattedPositions = await Promise.all(
           filtered.map(async (position) => {
             const stockResponse = await axios.get(
               `http://localhost:8080/api/stocks/${position.StockId}`
             );
-  
+
             const stockData = stockResponse.data;
             console.log("stockData in position:- ", stockData);
             // Calculate the age and filter for age <= 1 day
@@ -62,22 +62,22 @@ const Positions = () => {
             return null; // Return null for positions that don't match the criteria
           })
         );
-  
+
         // Remove null entries from the final positions
         const validPositions = formattedPositions.filter((pos) => pos !== null);
-  
+
         setPositions(validPositions);
         setFilteredPositions(validPositions);
-  
+
         console.log("Filtered and Formatted Positions:", validPositions);
       } catch (error) {
         console.error("Error fetching positions:", error);
       }
     };
-  
+
     fetchPositions();
   }, [userId]);
-  
+
   const calculateAge = (purchaseDate) => {
     const currentDate = new Date();
     const purchase = new Date(purchaseDate);
@@ -86,18 +86,16 @@ const Positions = () => {
     );
     return ageInDays; // Return the age as a number
   };
-  
-  
-
 
   const handleTrade = async (stock, actionType) => {
-
     console.log("stock in posiotion:-- ", stock);
     try {
-      const response = await axios.get(`http://localhost:8080/api/stocks/${stock.StockId}`);
+      const response = await axios.get(
+        `http://localhost:8080/api/stocks/${stock.StockId}`
+      );
       const stockData = response?.data;
 
-      console.log("Single Stock Details in Dashboard:- ", stockData)
+      console.log("Single Stock Details in Dashboard:- ", stockData);
       if (stockData == null) {
         localStorage.setItem(actionType, JSON.stringify(stock));
       } else {
@@ -188,7 +186,7 @@ const Positions = () => {
           </Col>
         </Row>
 
-        <table className="table table-bordered">
+        <table className="table table-bordered ">
           <thead>
             <tr>
               {columns.map((column, index) => (
@@ -210,22 +208,27 @@ const Positions = () => {
                 <td>{position.symbol}</td>
                 <td>{position.name}</td>
                 <td>{position.quantity}</td>
-                <td>{position.price}</td>
+                <td>
+                  {position.price ? Number(position.price).toFixed(2) : "N/A"}
+                </td>
+
                 <td>{position.totalPrice}</td>
                 <td>{position.age}</td>
                 <td>
                   <button
-                    className="btn btn-primary"
+                    className="actionBtn"
+                    style={{
+                      // fontWeight: "bold",
+                      backgroundColor:"rgb(29, 128, 241)"
+                    }}
                     onClick={() => handleTrade(position, "buy")}
                   >
                     Buy
                   </button>
                   <button
-                    className="btn m-2"
+                    className="actionBtn"
                     style={{
-                      backgroundColor: "#f57300",
-                      fontWeight: "bold",
-                      color: "white",
+                      backgroundColor: "#f57300"
                     }}
                     onClick={() => handleTrade(position, "sell")}
                   >
