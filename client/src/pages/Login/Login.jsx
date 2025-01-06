@@ -5,11 +5,14 @@ import { postRequest } from "../../components/Axios/api"; // Import API function
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "" });
+  const [userCred, setUserCred] = useState({ email: "", password: '' });
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    const {name , value} = e.target
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    setUserCred((prev) => ({ ...prev, [name]: value}));
   };
 
   const handleSubmit = async (e) => {
@@ -39,13 +42,28 @@ const Login = () => {
         {errorMessage && <p className="text-danger text-center">{errorMessage}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="email" className="form-label">
-              email
+            <label htmlFor="email" className="form-label fw-semibold">
+              Email
             </label>
             <input
-              type="text"
+              type="email"
               id="email"
               name="email"
+              placeholder="Enter Your valid email"
+              className="form-control"
+              value={credentials.email}
+              onChange={handleChange}
+              required
+            />
+
+            <label htmlFor="email" className="form-label mt-3 fw-semibold">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter Your valid password"
               className="form-control"
               value={credentials.email}
               onChange={handleChange}
