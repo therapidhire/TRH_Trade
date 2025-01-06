@@ -3,28 +3,27 @@ import { useNavigate, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { postRequest } from "../../components/Axios/api"; // Import API functions
 
+import InputField from "../../components/Shared/InputField";
+
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "" });
-  const [userCred, setUserCred] = useState({ email: "", password: '' });
+  const [userCred, setUserCred] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const {name , value} = e.target
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-    setUserCred((prev) => ({ ...prev, [name]: value}));
+    const { name, value } = e.target;
+    setUserCred((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       // Call the login API
-      // const response = await postRequest("/user/login", credentials);
-      const response = await postRequest("auth/user/login", credentials);
+      const response = await postRequest("auth/user/login", userCred);
 
-      console.log("user Login details", response.data);
+      // console.log("user Login details", response.data);
 
-      localStorage.setItem("userId", response.data.userId)
+      localStorage.setItem("userId", response.data.userId);
       localStorage.setItem("role", response.data.userRole); // Save email
 
       // Navigate to dashboard
@@ -37,40 +36,37 @@ const Login = () => {
 
   return (
     <div className="container d-flex align-items-center justify-content-center vh-100">
-      <div className="card shadow p-4" style={{ width: "100%", maxWidth: "400px" }}>
+      <div
+        className="card shadow p-4"
+        style={{ width: "100%", maxWidth: "400px" }}
+      >
         <h3 className="text-center mb-4">Login</h3>
-        {errorMessage && <p className="text-danger text-center">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="text-danger text-center">{errorMessage}</p>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="email" className="form-label fw-semibold">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Enter Your valid email"
-              className="form-control"
-              value={credentials.email}
-              onChange={handleChange}
-              required
+            <InputField
+              labelName={"Email"}
+              inputType={"email"}
+              inputId={"email"}
+              inputName={"email"}
+              placholder={"Enter Your valid email"}
+              values={userCred.email}
+              inputHandleChange={handleChange}
             />
-
-            <label htmlFor="email" className="form-label mt-3 fw-semibold">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Enter Your valid password"
-              className="form-control"
-              value={credentials.email}
-              onChange={handleChange}
-              required
+            <InputField
+              labelName={"Password"}
+              inputType={"password"}
+              inputId={"password"}
+              inputName={"password"}
+              placholder={"Enter Your valid password"}
+              labelStyle={"mt-3"}
+              values={userCred.password}
+              inputHandleChange={handleChange}
             />
           </div>
-         
+
           <button type="submit" className="btn btn-primary w-100">
             Login
           </button>
