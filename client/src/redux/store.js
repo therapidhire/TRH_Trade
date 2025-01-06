@@ -3,7 +3,7 @@ import tableReducer from './slices/tableSlice';
 import stocksReducer from './slices/stocksSlice';
 import holdingsReducer from './slices/holdingsSlice';
 import positionReducer from './slices/positionSlice';
-import historyReducer from './slices/historySlice';
+// import historyReducer from './slices/historySlice';
 
 
 const store = configureStore({
@@ -12,7 +12,7 @@ const store = configureStore({
     stocks: stocksReducer,
     holdings: holdingsReducer,
     position: positionReducer,
-    history: historyReducer,
+    // history: historyReducer,
   },
 });
 
