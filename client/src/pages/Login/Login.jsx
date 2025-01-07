@@ -8,6 +8,7 @@ import InputField from "../../components/Shared/InputField";
 const Login = () => {
   const [userCred, setUserCred] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
+  const [inputError, setInputError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -15,9 +16,32 @@ const Login = () => {
     setUserCred((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    const { email, password } = userCred;
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Invalid email format";
+    }
+    // if (!password.trim()) {
+    //   newErrors.password = "Password is required";
+    // } else if (password.length < 6) {
+    //   newErrors.password = "Password must be at least 6 characters";
+    // }
+
+    setInputError(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!validateForm()) {
+        return;
+      }
       // Call the login API
       const response = await postRequest("auth/user/login", userCred);
 
@@ -53,6 +77,8 @@ const Login = () => {
               inputName={"email"}
               placholder={"Enter Your valid email"}
               values={userCred.email}
+              isInvalid={!!inputError.email}
+              invalidError={inputError.email}
               inputHandleChange={handleChange}
             />
             <InputField
