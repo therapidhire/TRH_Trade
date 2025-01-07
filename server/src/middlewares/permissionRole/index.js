@@ -9,7 +9,7 @@ const signToken = (role) => {
         return next();
       } else {
         throw new Error(
-          `You dont't have permission to access this: ${error.message}`
+          `You do not have permission to access this: ${error.message}`
         );
       }
     } catch (error) {

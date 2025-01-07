@@ -386,7 +386,6 @@ const getTransactionById = async (req, res) => {
 };
 
 
-
 //for notification 
 const getTransactionForNotificationById = async (req, res) => {
   try {

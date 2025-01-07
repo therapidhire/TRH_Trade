@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { IoIosLogOut } from "react-icons/io";
 import axios from "axios";
 import "./Header.css";
+import { useAuth } from "../../context/AuthProvider";
 
 const Header = () => {
   const [notifications, setNotifications] = useState([]);
@@ -13,6 +14,8 @@ const Header = () => {
   const userId = localStorage.getItem("userId");
   const userRole = localStorage.getItem("role");
   const location = useLocation();
+
+  const auth = useAuth();  
 
   // Function to fetch all notifications
   // const fetchNotifications = async () => {
@@ -29,37 +32,35 @@ const Header = () => {
   //   }
   // };
 
-
   // const mappedNotification = {};
 
-const fetchNotifications = async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost:8080/api/notification/getAllNotifications"
-    );
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/api/notification/getAllNotifications"
+      );
 
-    const allNotification = response.data.data;
-    console.log("get all Notifications", allNotification);
-    const mappedNotificationtmp={};
-    // Use `Promise.all` to ensure all async operations complete
-    await Promise.all(
-      allNotification.map(async (notification) => {
-        const stockResponse = await axios.get(
-          `http://localhost:8080/api/stock-transactions/notification/${notification.details.stockId}`
-        );
-        console.log("Stock Details newww:", stockResponse.data);
-        mappedNotificationtmp[notification.id] = stockResponse.data;
-      })
-    );
+      const allNotification = response.data.data;
+      console.log("get all Notifications", allNotification);
+      const mappedNotificationtmp = {};
+      // Use `Promise.all` to ensure all async operations complete
+      await Promise.all(
+        allNotification.map(async (notification) => {
+          const stockResponse = await axios.get(
+            `http://localhost:8080/api/stock-transactions/notification/${notification.details.stockId}`
+          );
+          console.log("Stock Details newww:", stockResponse.data);
+          mappedNotificationtmp[notification.id] = stockResponse.data;
+        })
+      );
 
-    console.log("Mapped Notifications:", mappedNotificationtmp);
-    setMappedNotification(mappedNotificationtmp);
-    setNotifications(allNotification || []);
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-  }
-};
-
+      console.log("Mapped Notifications:", mappedNotificationtmp);
+      setMappedNotification(mappedNotificationtmp);
+      setNotifications(allNotification || []);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   useEffect(() => {
     fetchNotifications(); // Fetch notifications on component mount
@@ -122,11 +123,6 @@ const fetchNotifications = async () => {
     setSelectedNotification(null);
   };
 
-  const logoutuser = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
-
   return (
     <header className="dashboard-header shadow p-3 mb-5 bg-white rounded">
       <div className="logo-container">TRH Trade Portal</div>
@@ -183,11 +179,16 @@ const fetchNotifications = async () => {
                               display: "flex",
                             }}
                           >
-                            <p style={{
-                              fontWeight:"400"
-                            }}>
-
-                            {mappedNotification[notif.id].TransactionType}: {mappedNotification[notif.id].Quantity} stock of {mappedNotification[notif.id].StockId.StockName} are {mappedNotification[notif.id].TransactionType} at the price {mappedNotification[notif.id].Price}
+                            <p
+                              style={{
+                                fontWeight: "400",
+                              }}
+                            >
+                              {mappedNotification[notif.id].TransactionType}:{" "}
+                              {mappedNotification[notif.id].Quantity} stock of{" "}
+                              {mappedNotification[notif.id].StockId.StockName}{" "}
+                              are {mappedNotification[notif.id].TransactionType}{" "}
+                              at the price {mappedNotification[notif.id].Price}
                             </p>
                             {/* <p
                               style={{
@@ -248,7 +249,7 @@ const fetchNotifications = async () => {
                 fontWeight: "bold",
                 fontSize: "25px",
               }}
-              onClick={logoutuser}
+              onClick={() => auth.logOut()}
             >
               <IoIosLogOut />
             </Link>

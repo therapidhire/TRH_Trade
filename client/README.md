@@ -9,12 +9,16 @@ Git: For version control.
 VS Code: Or any preferred IDE.
 Postman: For API testing.
 
+<<<<<<< HEAD
 2. Project Setup
 Backend Setup
 Clone the repository:
 bash
 git clone <repository-url>
 cd backend
+=======
+## Available Script
+>>>>>>> 9063498794a50fd15352302d4bf3145382132ed1
 
 Install dependencies:
 bash
