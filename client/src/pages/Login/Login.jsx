@@ -4,12 +4,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { postRequest } from "../../components/Axios/api"; // Import API functions
 
 import InputField from "../../components/Shared/InputField";
+import { useAuth } from "../../context/AuthProvider";
 
 const Login = () => {
   const [userCred, setUserCred] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const [inputError, setInputError] = useState("");
   const navigate = useNavigate();
+
+  const auth = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,16 +45,14 @@ const Login = () => {
       if (!validateForm()) {
         return;
       }
-      // Call the login API
-      const response = await postRequest("auth/user/login", userCred);
-
-      // console.log("user Login details", response.data);
-
-      localStorage.setItem("userId", response.data.userId);
-      localStorage.setItem("role", response.data.userRole); // Save email
+     const isUserLogedIn = await auth.loginAction(userCred)
 
       // Navigate to dashboard
-      navigate("/dashboard");
+      if(isUserLogedIn){
+        navigate("/dashboard");
+      }else{
+        setErrorMessage("Invalid credentials");
+      }
     } catch (error) {
       // Handle API error
       setErrorMessage(error.message || "Login failed");
