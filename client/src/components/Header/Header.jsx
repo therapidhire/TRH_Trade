@@ -5,118 +5,43 @@ import axios from "axios";
 import "./Header.css";
 import { useAuth } from "../../context/AuthProvider";
 import { navItems } from "../../data/jsonData";
+import NotificationDropdown from "../../pages/Notification/NotificationDropdown";
 
 const Header = () => {
   const [notifications, setNotifications] = useState([]);
-  const [mappedNotification, setMappedNotification] = useState({});
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const userId = localStorage.getItem("userId");
   const userRole = localStorage.getItem("role");
   const location = useLocation();
-
   const auth = useAuth();
 
-  // Function to fetch all notifications
-  // const fetchNotifications = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       "http://localhost:8080/api/notification/getAllNotifications"
-  //     );
-
-  //     const allNotification = response.data.data;
-  //     console.log("get all Notifications", response.data.data);
-  //     setNotifications(response.data.data || []);
-  //   } catch (error) {
-  //     console.error("Error fetching notifications:", error);
-  //   }
-  // };
-
-  // const mappedNotification = {};
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8080/api/notification/getAllNotifications"
-      );
-
-      const allNotification = response.data.data;
-      console.log("get all Notifications", allNotification);
-      const mappedNotificationtmp = {};
-      // Use `Promise.all` to ensure all async operations complete
-      await Promise.all(
-        allNotification.map(async (notification) => {
-          const stockResponse = await axios.get(
-            `http://localhost:8080/api/stock-transactions/notification/${notification.details.stockId}`
-          );
-          console.log("Stock Details newww:", stockResponse.data);
-          mappedNotificationtmp[notification.id] = stockResponse.data;
-        })
-      );
-
-      console.log("Mapped Notifications:", mappedNotificationtmp);
-      setMappedNotification(mappedNotificationtmp);
-      setNotifications(allNotification || []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
-
+  // Fetch notifications immediately on mount
   useEffect(() => {
-    fetchNotifications(); // Fetch notifications on component mount
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/notification/getAllNotifications"
+        );
+        setNotifications(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        setNotifications([]);
+      }
+    };
+
+    // Initial fetch
+    fetchNotifications();
+
+    // Set up polling interval
+    // const intervalId = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+
+    // // Cleanup on unmount
+    // return () => clearInterval(intervalId);
   }, []);
 
   const handleIconClick = () => {
     setDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleNotificationClick = async (notification) => {
-    try {
-      console.log("Clicked Notification:", notification);
-
-      const stock_id = notification?.details?.stockId;
-
-      // Fetch stock details
-      const stockDetailsResponse = await axios.get(
-        `http://localhost:8080/api/stock-transactions/notification/${stock_id}`
-      );
-      console.log("Stock Details newww:", stockDetailsResponse.data);
-
-      // Mark the notification as read
-      await axios.put(
-        `http://localhost:8080/api/notification/markAsRead/${notification.id}`,
-        { isRead: true }
-      );
-
-      // Prepare notification details
-      const NotificationDetails = {
-        actionType: stockDetailsResponse.data.TransactionType || "N/A",
-        firstname: stockDetailsResponse.data.UserId?.Firstname || "N/A",
-        lastname: stockDetailsResponse.data.UserId?.Lastname || "N/A",
-        email: stockDetailsResponse.data.UserId?.UserEmail || "N/A",
-        contact: stockDetailsResponse.data.UserId?.ContactNo || "N/A",
-        accountType: stockDetailsResponse.data.AccountType || "N/A",
-        stockName: stockDetailsResponse.data.StockId?.StockName || "N/A",
-        price: stockDetailsResponse.data.Price || "N/A",
-        qty: stockDetailsResponse.data.Quantity || "N/A",
-        reason: stockDetailsResponse.data.Reason || "N/A",
-      };
-
-      console.log("Parsed Notification Details:", NotificationDetails);
-
-      // Update the selected notification state
-      setSelectedNotification(NotificationDetails);
-
-      // Open the modal and close the dropdown
-      setModalOpen(true);
-      setDropdownOpen(false);
-
-      // Re-fetch all notifications to update the list
-      await fetchNotifications();
-    } catch (error) {
-      console.error("Error handling notification click:", error);
-    }
   };
 
   const closeModal = () => {
@@ -130,7 +55,6 @@ const Header = () => {
       <nav className="nav-menu">
         <ul className="nav-list">
           {navItems.map((item) => {
-            // Handle special cases first
             if (item.name === "Notifications") {
               return (
                 (userRole === "Admin" || userRole === "SuperAdmin") && (
@@ -145,53 +69,13 @@ const Header = () => {
                       🔔
                     </div>
                     {isDropdownOpen && (
-                      <div className="notification-dropdown">
-                        {notifications.length > 0 ? (
-                          <>
-                            {notifications.map((notif, index) => (
-                              <div
-                                key={index}
-                                className="notification-item"
-                                onClick={() => handleNotificationClick(notif)}
-                              >
-                                <div style={{ display: "flex" }}>
-                                  <p style={{ fontWeight: "400" }}>
-                                    {
-                                      mappedNotification[notif.id]
-                                        .TransactionType
-                                    }
-                                    :{" "}{mappedNotification[notif.id].Quantity}{" "}
-                                    stock of{" "}
-                                    {
-                                      mappedNotification[notif.id].StockId
-                                        .StockName
-                                    }{" "}
-                                    are{" "}
-                                    {
-                                      mappedNotification[notif.id]
-                                        .TransactionType
-                                    }{" "}
-                                    at the price{" "}
-                                    {mappedNotification[notif.id].Price}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                            <div className="dropdown-footer">
-                              <button
-                                className="clear-button"
-                                onClick={() => setNotifications([])}
-                              >
-                                Clear All
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="notification-item">
-                            No notifications
-                          </div>
-                        )}
-                      </div>
+                      <NotificationDropdown
+                        setModalOpen={setModalOpen}
+                        setDropdownOpen={setDropdownOpen}
+                        setSelectedNotification={setSelectedNotification}
+                        setNotifications={setNotifications}
+                        notifications={notifications}
+                      />
                     )}
                   </li>
                 )
@@ -208,12 +92,7 @@ const Header = () => {
                 >
                   <Link
                     to={item.path}
-                    className="nav-link"
-                    style={{
-                      color: "blue",
-                      fontWeight: "bold",
-                      fontSize: "25px",
-                    }}
+                    className="nav-link logout-link"
                     onClick={() => auth.logOut()}
                   >
                     <IoIosLogOut />
@@ -222,7 +101,6 @@ const Header = () => {
               );
             }
 
-            // Handle regular nav items
             return (
               <li
                 key={item.id}
@@ -240,56 +118,51 @@ const Header = () => {
       </nav>
 
       {isModalOpen && selectedNotification && (
-        <div className="notification-modal-overlay" onClick={closeModal}>
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          style={{
+            display: "block",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+          }}
+          onClick={closeModal}
+        >
           <div
-            className="notification-modal"
+            className="modal-dialog modal-dialog-centered modal-lg w-50"
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="close-modal-button" onClick={closeModal}>
-              ✖
-            </button>
-            <h3 className="mb-4">Notification Details</h3>
-
-            <div className="NotificationDetailDiv">
-              <div className="notificationHeading">
-                <h1 className="heading">Action:</h1>
-                <p className="para">{selectedNotification.actionType}</p>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3 className="modal-title">Notification Details</h3>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeModal}
+                ></button>
               </div>
-              <div className="notificationHeading">
-                <h1 className="heading">User name:</h1>
-                <p className="para">
-                  {selectedNotification.firstname}{" "}
-                  {selectedNotification.lastname}
-                </p>
+              <div className="modal-body">
+                <div className="container w-75">
+                  {Object.entries(selectedNotification).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="row mb-3 align-items-center justify-content-center"
+                    >
+                      {/* Key with first letter capitalized */}
+                      <div className="col-4 d-flex fw-bold text-end">
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </div>
+                      {/* Centered ":" */}
+                      <div className="col-1 text-center">:</div>
+                      {/* Value */}
+                      <div className="col-6">{value}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Email: </h1>
-                <p className="para">{selectedNotification.email}</p>
-              </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Contact No: </h1>
-                <p className="para">{selectedNotification.contact}</p>
-              </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Account Type:</h1>
-                <p className="para">{selectedNotification.accountType}</p>
-              </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Stock: </h1>
-                <p className="para">{selectedNotification.stockName}</p>
-              </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Price: </h1>
-                <p className="para">{selectedNotification.price}</p>
-              </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Quantity:</h1>
-                <p className="para">{selectedNotification.qty}</p>
-              </div>
-              <div className="notificationHeading">
-                <h1 className="heading">Reason: </h1>
-                <p className="para">{selectedNotification.reason}</p>
-              </div>
+              {/* <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={closeModal}>
+            Close
+          </button>
+        </div> */}
             </div>
           </div>
         </div>

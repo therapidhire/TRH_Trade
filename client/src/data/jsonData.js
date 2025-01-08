@@ -1,32 +1,3 @@
-// export const navItems = [
-//   {
-//     name: "Dashboard",
-//     path: "/dashboard",
-//   },
-//   {
-//     name: "Holdings",
-//     path: "/holdings",
-//   },
-//   {
-//     name: "Positions",
-//     path: "/positions",
-//   },
-//   {
-//     type: "notification",
-//     showFor: ["Admin", "SuperAdmin"],
-//   },
-//   {
-//     name: "History",
-//     path: "/history",
-//   },
-//   {
-//     name: "Profile",
-//     path: "/profile",
-//   },
-//   {
-//     type: "logout",
-//   },
-// ];
 export const navItems = [
     {
       id: 1,
