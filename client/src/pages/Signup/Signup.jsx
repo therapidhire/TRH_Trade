@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Alert, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import InputField from "../../components/Shared/InputField";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -33,7 +34,9 @@ const Signup = () => {
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    if (password !== confirmPassword) {
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = "Confirm Password is required";
+    } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
@@ -65,59 +68,57 @@ const Signup = () => {
       <h2 className="text-center mb-4">Sign Up</h2>
       {successMessage && <Alert variant="success">{successMessage}</Alert>}
       <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="name"
-            placeholder="Enter your name"
-            value={formData.name}
-            onChange={handleChange}
-            isInvalid={!!errors.name}
-          />
-          <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
-        </Form.Group>
+        <InputField
+          labelName={"Name"}
+          labelStyle={"mb-3"}
+          inputType={"text"}
+          inputId={"name"}
+          inputName={"name"}
+          placholder={"Enter your name"}
+          values={formData.name}
+          inputHandleChange={handleChange}
+          isInvalid={!!errors.name}
+          invalidError={errors.name}
+        />
 
-        <Form.Group className="mb-3">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            isInvalid={!!errors.email}
-          />
-          <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
-        </Form.Group>
+        <InputField
+          labelName={"Email"}
+          labelStyle={"mb-3"}
+          inputType={"email"}
+          inputId={"email"}
+          inputName={"email"}
+          placholder={"Enter your email"}
+          values={formData.email}
+          inputHandleChange={handleChange}
+          isInvalid={!!errors.email}
+          invalidError={errors.email}
+        />
 
-        <Form.Group className="mb-3">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            isInvalid={!!errors.password}
-          />
-          <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
-        </Form.Group>
+        <InputField
+          labelName={"Password"}
+          labelStyle={"mb-3"}
+          inputType={"password"}
+          inputId={"password"}
+          inputName={"password"}
+          placholder={"Enter your password"}
+          values={formData.password}
+          inputHandleChange={handleChange}
+          isInvalid={!!errors.password}
+          invalidError={errors.password}
+        />
 
-        <Form.Group className="mb-3">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            isInvalid={!!errors.confirmPassword}
-          />
-          <Form.Control.Feedback type="invalid">
-            {errors.confirmPassword}
-          </Form.Control.Feedback>
-        </Form.Group>
+        <InputField
+          labelName={"Confirm Password"}
+          labelStyle={"mb-3"}
+          inputType={"password"}
+          inputId={"confirmPassword"}
+          inputName={"confirmPassword"}
+          placholder={"Confirm your password"}
+          values={formData.confirmPassword}
+          inputHandleChange={handleChange}
+          isInvalid={!!errors.confirmPassword}
+          invalidError={errors.confirmPassword}
+        />
 
         <Button variant="primary" type="submit" className="w-100">
           Sign Up
