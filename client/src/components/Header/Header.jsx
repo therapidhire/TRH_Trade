@@ -4,6 +4,7 @@ import { IoIosLogOut } from "react-icons/io";
 import axios from "axios";
 import "./Header.css";
 import { useAuth } from "../../context/AuthProvider";
+import { navItems } from "../../data/jsonData";
 
 const Header = () => {
   const [notifications, setNotifications] = useState([]);
@@ -15,7 +16,7 @@ const Header = () => {
   const userRole = localStorage.getItem("role");
   const location = useLocation();
 
-  const auth = useAuth();  
+  const auth = useAuth();
 
   // Function to fetch all notifications
   // const fetchNotifications = async () => {
@@ -128,132 +129,113 @@ const Header = () => {
       <div className="logo-container">TRH Trade Portal</div>
       <nav className="nav-menu">
         <ul className="nav-list">
-          <li
-            className={`nav-item ${
-              location.pathname === "/dashboard" ? "active" : ""
-            }`}
-          >
-            <Link to="/dashboard" className="nav-link">
-              Dashboard
-            </Link>
-          </li>
-          <li
-            className={`nav-item ${
-              location.pathname === "/holdings" ? "active" : ""
-            }`}
-          >
-            <Link to="/holdings" className="nav-link">
-              Holdings
-            </Link>
-          </li>
-          <li
-            className={`nav-item ${
-              location.pathname === "/positions" ? "active" : ""
-            }`}
-          >
-            <Link to="/positions" className="nav-link">
-              Positions
-            </Link>
-          </li>
-
-          {(userRole === "Admin" || userRole === "SuperAdmin") && (
-            <li className="nav-item notification-container">
-              <div className="notification-icon" onClick={handleIconClick}>
-                <span className="notification-badge">
-                  {notifications.length}
-                </span>
-                🔔
-              </div>
-              {isDropdownOpen && (
-                <div className="notification-dropdown">
-                  {notifications.length > 0 ? (
-                    <>
-                      {notifications.map((notif, index) => (
-                        <div
-                          key={index}
-                          className="notification-item"
-                          onClick={() => handleNotificationClick(notif)}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                            }}
-                          >
-                            <p
-                              style={{
-                                fontWeight: "400",
-                              }}
-                            >
-                              {mappedNotification[notif.id].TransactionType}:{" "}
-                              {mappedNotification[notif.id].Quantity} stock of{" "}
-                              {mappedNotification[notif.id].StockId.StockName}{" "}
-                              are {mappedNotification[notif.id].TransactionType}{" "}
-                              at the price {mappedNotification[notif.id].Price}
-                            </p>
-                            {/* <p
-                              style={{
-                                fontSize: "12px",
-                                color: "orange",
-                                fontWeight: "200",
-                                marginLeft: "10px",
-                              }}
-                            >
-                              See Details
-                            </p> */}
+          {navItems.map((item) => {
+            // Handle special cases first
+            if (item.name === "Notifications") {
+              return (
+                (userRole === "Admin" || userRole === "SuperAdmin") && (
+                  <li key={item.id} className="nav-item notification-container">
+                    <div
+                      className="notification-icon"
+                      onClick={handleIconClick}
+                    >
+                      <span className="notification-badge">
+                        {notifications.length}
+                      </span>
+                      🔔
+                    </div>
+                    {isDropdownOpen && (
+                      <div className="notification-dropdown">
+                        {notifications.length > 0 ? (
+                          <>
+                            {notifications.map((notif, index) => (
+                              <div
+                                key={index}
+                                className="notification-item"
+                                onClick={() => handleNotificationClick(notif)}
+                              >
+                                <div style={{ display: "flex" }}>
+                                  <p style={{ fontWeight: "400" }}>
+                                    {
+                                      mappedNotification[notif.id]
+                                        .TransactionType
+                                    }
+                                    :{" "}{mappedNotification[notif.id].Quantity}{" "}
+                                    stock of{" "}
+                                    {
+                                      mappedNotification[notif.id].StockId
+                                        .StockName
+                                    }{" "}
+                                    are{" "}
+                                    {
+                                      mappedNotification[notif.id]
+                                        .TransactionType
+                                    }{" "}
+                                    at the price{" "}
+                                    {mappedNotification[notif.id].Price}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="dropdown-footer">
+                              <button
+                                className="clear-button"
+                                onClick={() => setNotifications([])}
+                              >
+                                Clear All
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="notification-item">
+                            No notifications
                           </div>
-                        </div>
-                      ))}
-                      <div className="dropdown-footer">
-                        <button
-                          className="clear-button"
-                          onClick={() => setNotifications([])}
-                        >
-                          Clear All
-                        </button>
+                        )}
                       </div>
-                    </>
-                  ) : (
-                    <div className="notification-item">No notifications</div>
-                  )}
-                </div>
-              )}
-            </li>
-          )}
+                    )}
+                  </li>
+                )
+              );
+            }
 
-          <li
-            className={`nav-item ${
-              location.pathname === "/history" ? "active" : ""
-            }`}
-          >
-            <Link to="/history" className="nav-link">
-              History
-            </Link>
-          </li>
-          <li
-            className={`nav-item ${
-              location.pathname === "/profile" ? "active" : ""
-            }`}
-          >
-            <Link to="/profile" className="nav-link">
-              Profile
-            </Link>
-          </li>
-          <li
-            className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
-          >
-            <Link
-              to="/"
-              className="nav-link"
-              style={{
-                color: "blue",
-                fontWeight: "bold",
-                fontSize: "25px",
-              }}
-              onClick={() => auth.logOut()}
-            >
-              <IoIosLogOut />
-            </Link>
-          </li>
+            if (item.name === "Logout") {
+              return (
+                <li
+                  key={item.id}
+                  className={`nav-item ${
+                    location.pathname === item.path ? "active" : ""
+                  }`}
+                >
+                  <Link
+                    to={item.path}
+                    className="nav-link"
+                    style={{
+                      color: "blue",
+                      fontWeight: "bold",
+                      fontSize: "25px",
+                    }}
+                    onClick={() => auth.logOut()}
+                  >
+                    <IoIosLogOut />
+                  </Link>
+                </li>
+              );
+            }
+
+            // Handle regular nav items
+            return (
+              <li
+                key={item.id}
+                className={`nav-item ${
+                  location.pathname === item.path ? "active" : ""
+                }`}
+              >
+                <Link to={item.path} className="nav-link">
+                  {item.name}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
