@@ -24,7 +24,7 @@ const InputField = (props) => {
         type={inputType}
         id={inputId}
         name={inputName}
-        placeholder={placholder}
+        placeholder={placeholder}
         className="form-control"
         value={values}
         onChange={inputHandleChange}
