@@ -2,9 +2,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  /* background-color: #3883ed; */
+  padding: 10px 10px;
   border-bottom: 1px solid #4e71ef;
+  background-color: white; /* Ensure the background color to cover the content under it */
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Keeps the header above other elements */
 }
 
 .logo-container {
