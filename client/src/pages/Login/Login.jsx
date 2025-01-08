@@ -76,7 +76,7 @@ const Login = () => {
               inputType={"email"}
               inputId={"email"}
               inputName={"email"}
-              placholder={"Enter Your valid email"}
+              placeholder={"Enter Your valid email"}
               values={userCred.email}
               isInvalid={!!inputError.email}
               invalidError={inputError.email}
@@ -87,7 +87,7 @@ const Login = () => {
               inputType={"password"}
               inputId={"password"}
               inputName={"password"}
-              placholder={"Enter Your valid password"}
+              placeholder={"Enter Your valid password"}
               labelStyle={"mt-3"}
               values={userCred.password}
               inputHandleChange={handleChange}

@@ -7,7 +7,7 @@ const InputField = (props) => {
     inputType,
     inputId,
     inputName,
-    placholder,
+    placeholder,
     // inputStyle,
     labelStyle,
     values,
@@ -23,7 +23,7 @@ const InputField = (props) => {
           type={inputType}
           id={inputId}
           name={inputName}
-          placeholder={placholder}
+          placeholder={placeholder}
           value={values}
           onChange={inputHandleChange}
           isInvalid={isInvalid}

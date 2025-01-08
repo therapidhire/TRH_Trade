@@ -74,7 +74,7 @@ const Signup = () => {
           inputType={"text"}
           inputId={"name"}
           inputName={"name"}
-          placholder={"Enter your name"}
+          placeholder={"Enter your name"}
           values={formData.name}
           inputHandleChange={handleChange}
           isInvalid={!!errors.name}
@@ -87,7 +87,7 @@ const Signup = () => {
           inputType={"email"}
           inputId={"email"}
           inputName={"email"}
-          placholder={"Enter your email"}
+          placeholder={"Enter your email"}
           values={formData.email}
           inputHandleChange={handleChange}
           isInvalid={!!errors.email}
@@ -100,7 +100,7 @@ const Signup = () => {
           inputType={"password"}
           inputId={"password"}
           inputName={"password"}
-          placholder={"Enter your password"}
+          placeholder={"Enter your password"}
           values={formData.password}
           inputHandleChange={handleChange}
           isInvalid={!!errors.password}
@@ -113,7 +113,7 @@ const Signup = () => {
           inputType={"password"}
           inputId={"confirmPassword"}
           inputName={"confirmPassword"}
-          placholder={"Confirm your password"}
+          placeholder={"Confirm your password"}
           values={formData.confirmPassword}
           inputHandleChange={handleChange}
           isInvalid={!!errors.confirmPassword}
