@@ -182,7 +182,7 @@ const BuySellModal = () => {
                 <div className="input-group">
                   <label className="input-label">Account Type</label>
                   <select
-                    className="w-50 input-field"
+                    className=" input-field"
                     value={accountType}
                     onChange={handleAccountChange}
                   >
