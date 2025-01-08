@@ -15,7 +15,7 @@ const InputField = (props) => {
   return (
     <div>
       <label htmlFor="email" className={`form-label fw-semibold ${labelStyle}`}>
-        {labelName}
+         {labelName}
       </label>
       <input
         type={inputType}
@@ -25,7 +25,7 @@ const InputField = (props) => {
         className="form-control"
         value={values}
         onChange={inputHandleChange}
-        required
+        // required
       />
     </div>
   );

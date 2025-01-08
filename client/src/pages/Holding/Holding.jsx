@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axios from "axios";
-import '../Position/Positions.css'
+import "../Position/Positions.css";
+import "../Holding/Holding.css";
 
 const Positions = () => {
   const navigate = useNavigate();
@@ -158,6 +159,7 @@ const Positions = () => {
     "Price",
     "Total Amount",
     "Age",
+    "Action"
   ];
   const columnKeys = [
     "symbol",
@@ -173,19 +175,27 @@ const Positions = () => {
       <Header />
       <div className="container mt-5">
         <h2 className="text-center mb-4">Your Holdings</h2>
-
-        <Row>
-          <Col sm={6}>
-            <Form.Control
-              type="text"
-              placeholder="Filter by Holding name"
-              value={holdingNameFilter}
-              onChange={(e) => handleFilter(e.target.value)}
-              className="mb-5"
-            />
-          </Col>
-        </Row>
-
+        {/* <div className="search-bar">
+          <Row>
+            <Col sm={6}>
+              <Form.Control
+                type="text"
+                placeholder="Filter by Holding name"
+                value={holdingNameFilter}
+                onChange={(e) => handleFilter(e.target.value)}
+                className="mb-5"
+              />
+            </Col>
+          </Row>
+        </div> */}
+        <div className="dashboard-searchbar">
+          <input
+            type="text"
+            placeholder="Filter by Holding name"
+            value={holdingNameFilter}
+            onChange={(e) => handleFilter(e.target.value)}
+          />
+        </div>
         <table className="table table-bordered ">
           <thead>
             <tr>
@@ -219,7 +229,7 @@ const Positions = () => {
                     className="actionBtn"
                     style={{
                       // fontWeight: "bold",
-                      backgroundColor:"rgb(29, 128, 241)"
+                      backgroundColor: "rgb(29, 128, 241)",
                     }}
                     onClick={() => handleTrade(position, "buy")}
                   >
@@ -228,7 +238,7 @@ const Positions = () => {
                   <button
                     className="actionBtn"
                     style={{
-                      backgroundColor: "#f57300"
+                      backgroundColor: "#f57300",
                     }}
                     onClick={() => handleTrade(position, "sell")}
                   >

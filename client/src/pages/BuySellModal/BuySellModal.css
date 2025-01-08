@@ -14,13 +14,14 @@
   font-size: 18px;
 }
 .input-field {
-  width: 100%; /* Ensure it fills the available width */
+  width: 308px; /* Set the fixed width for input fields */
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
 }
+
 
 .description-field {
   height: 100px; /* Adjust the height to match the input fields */
@@ -60,7 +61,7 @@
 /* Main container for the modal */
 .modal-container {
   width: 100%;
-  max-width: 600px; /* Maximum width of the modal */
+  max-width: 600px;
   max-height: 650px;
   height: 90vh;
   background-color: #ffffff;
@@ -71,8 +72,22 @@
   flex-direction: column;
   gap: 20px;
   text-align: center;
-  overflow-y: auto; /* Scrollable content if overflow */
+  overflow-y: scroll; /* Enable vertical scrolling */
   box-sizing: border-box;
+}
+.modal-container::-webkit-scrollbar {
+  width: 0; /* Remove scrollbar width */
+  height: 0; /* Remove scrollbar height */
+}
+
+/* Hide scrollbar for Firefox */
+.modal-container {
+  scrollbar-width: none; /* Firefox: Hide scrollbar */
+}
+
+/* For Internet Explorer or Edge (legacy) */
+.modal-container {
+  -ms-overflow-style: none; /* IE and Edge: Hide scrollbar */
 }
 
 /* Modal Header */
