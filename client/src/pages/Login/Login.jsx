@@ -38,19 +38,18 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (!validateForm()) {
         return;
       }
-     const isUserLogedIn = await auth.loginAction(userCred)
+      const isUserLogedIn = await auth.loginAction(userCred);
 
       // Navigate to dashboard
-      if(isUserLogedIn){
+      if (isUserLogedIn) {
         navigate("/dashboard");
-      }else{
+      } else {
         setErrorMessage("Invalid credentials");
       }
     } catch (error) {
@@ -73,7 +72,6 @@ const Login = () => {
           <div className="mb-3">
             <InputField
               labelName={"Email"}
-              inputType={"email"}
               inputId={"email"}
               inputName={"email"}
               placeholder={"Enter Your valid email"}
@@ -84,7 +82,6 @@ const Login = () => {
             />
             <InputField
               labelName={"Password"}
-              inputType={"password"}
               inputId={"password"}
               inputName={"password"}
               placeholder={"Enter Your valid password"}
