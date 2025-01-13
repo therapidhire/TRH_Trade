@@ -179,7 +179,7 @@ const Positions = () => {
       <div className="container mt-5">
         <h2 className="text-center mb-4">Your Positions</h2>
 
-        <Row>
+        {/* <Row>
           <Col sm={6}>
             <Form.Control
               type="text"
@@ -189,7 +189,15 @@ const Positions = () => {
               className="mb-5"
             />
           </Col>
-        </Row>
+        </Row> */}
+        <div className="dashboard-searchbar">
+          <input
+            type="text"
+            placeholder="Filter by Position name"
+            value={holdingNameFilter}
+            onChange={(e) => handleFilter(e.target.value)}
+          />
+        </div>
 
         <table className="table table-bordered">
           <thead>

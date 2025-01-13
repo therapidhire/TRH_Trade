@@ -4,6 +4,7 @@ import { Form, Row, Col, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axios from "axios";
 import "../Position/Positions.css";
+import "../Holding/Holding.css";
 
 const Holdings = () => {
   const navigate = useNavigate();
@@ -193,14 +194,19 @@ const Holdings = () => {
                 <td>
                   <button
                     className="actionBtn"
-                    style={{ backgroundColor: "rgb(29, 128, 241)" }}
+                    style={{
+                      // fontWeight: "bold",
+                      backgroundColor:"rgb(29, 128, 241)"
+                    }}
                     onClick={() => handleTrade(position, "buy")}
                   >
                     Buy
                   </button>
                   <button
                     className="actionBtn"
-                    style={{ backgroundColor: "#f57300" }}
+                    style={{
+                      backgroundColor: "#f57300"
+                    }}
                     onClick={() => handleTrade(position, "sell")}
                   >
                     Sell
