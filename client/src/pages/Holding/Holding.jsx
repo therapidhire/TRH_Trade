@@ -6,7 +6,6 @@ import axios from "axios";
 import "../Position/Positions.css";
 import "../Holding/Holding.css";
 
-
 const Holdings = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
@@ -54,31 +53,34 @@ const Holdings = () => {
       );
       const allStockIds = filtered.map((position) => position.StockId);
 
-      const getAllStoks = (await axios.post(
-        `http://localhost:8080/api/stocks/getStockByIds`,
-        { stockIds: allStockIds }
-      )).data;
+      const getAllStoks = (
+        await axios.post(`http://localhost:8080/api/stocks/getStockByIds`, {
+          stockIds: allStockIds,
+        })
+      ).data;
 
-      const formattedPositionss = filtered?.map((stock) => {
-        const age = calculateAge(stock.CreatedAt);
-        if (age <= 1) return null;
-      
-        const stockDetails = getAllStoks.find(s => s._id === stock.StockId);
-        
-        if (stockDetails) {
-          return {
-            StockId: stock?.StockId,
-            symbol: stockDetails?.Symbol,
-            name: stockDetails?.StockName,
-            quantity: stock?.Quantity,
-            price: stock?.Price,
-            totalPrice: (stock?.Quantity * stock?.Price).toFixed(2),
-            age: `${age} days`,
-          };
-        }
-        return null;
-      }).filter(Boolean);
-      
+      const formattedPositionss = filtered
+        ?.map((stock) => {
+          const age = calculateAge(stock.CreatedAt);
+          if (age <= 1) return null;
+
+          const stockDetails = getAllStoks.find((s) => s._id === stock.StockId);
+
+          if (stockDetails) {
+            return {
+              StockId: stock?.StockId,
+              symbol: stockDetails?.Symbol,
+              name: stockDetails?.StockName,
+              quantity: stock?.Quantity,
+              price: stock?.Price,
+              totalPrice: (stock?.Quantity * stock?.Price).toFixed(2),
+              age: `${age} days`,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
+
       setPositions(formattedPositionss);
     } catch (error) {
       console.error("Error fetching positions:", error);
@@ -100,15 +102,28 @@ const Holdings = () => {
 
     if (sortConfig.column) {
       result.sort((a, b) => {
-        const aValue = a[sortConfig.column];
-        const bValue = b[sortConfig.column];
+        let compareA = a[sortConfig.column];
+        let compareB = b[sortConfig.column];
+
+        if (sortConfig.column === "totalPrice") {
+          compareA = parseFloat(compareA);
+          compareB = parseFloat(compareB);
+        }
+
+        if (sortConfig.column === "age") {
+          compareA = parseInt(compareA.split(" ")[0]);
+          compareB = parseInt(compareB.split(" ")[0]);
+        }
+
+        if (typeof compareA === "number" && typeof compareB === "number") {
+          return sortConfig.order === "asc"
+            ? compareA - compareB
+            : compareB - compareA;
+        }
+
         return sortConfig.order === "asc"
-          ? aValue > bValue
-            ? 1
-            : -1
-          : aValue < bValue
-          ? 1
-          : -1;
+          ? String(compareA).localeCompare(String(compareB))
+          : String(compareB).localeCompare(String(compareA));
       });
     }
 
@@ -138,33 +153,14 @@ const Holdings = () => {
     [navigate]
   );
 
-
   const handleSort = useCallback((column, index) => {
-    if(index === columns.length -1) return
+    if (index === columns.length - 1) return;
     setSortConfig((current) => ({
       column,
       order:
         current.column === column && current.order === "asc" ? "desc" : "asc",
     }));
   }, []);
-  
-  const columns = [
-    "Symbol",
-    "Holding Name",
-    "Quantity",
-    "Price",
-    "Total Amount",
-    "Age",
-    "Action"
-  ];
-  const columnKeys = [
-    "symbol",
-    "name",
-    "quantity",
-    "price",
-    "totalPrice",
-    "age",
-  ];
 
   return (
     <>
@@ -172,40 +168,14 @@ const Holdings = () => {
       <div className="container mt-5">
         <h2 className="text-center mb-4">Your Holdings</h2>
 
+        {/* <table className="table table-bordered"> */}
 
-        <Row>
-          <Col sm={6}>
-            <Form.Control
-              type="text"
-              placeholder="Filter by Holding name"
-              value={holdingNameFilter}
-              onChange={(e) => setHoldingNameFilter(e.target.value)}
-              className="mb-5"
-            />
-          </Col>
-        </Row>
-
-        <table className="table table-bordered">
-
-        {/* <div className="search-bar">
-          <Row>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                placeholder="Filter by Holding name"
-                value={holdingNameFilter}
-                onChange={(e) => handleFilter(e.target.value)}
-                className="mb-5"
-              />
-            </Col>
-          </Row>
-        </div> */}
         <div className="dashboard-searchbar">
           <input
             type="text"
             placeholder="Filter by Holding name"
             value={holdingNameFilter}
-            onChange={(e) => handleFilter(e.target.value)}
+            onChange={(e) => setHoldingNameFilter(e.target.value)}
           />
         </div>
         <table className="table table-bordered ">
@@ -238,27 +208,14 @@ const Holdings = () => {
                 <td>
                   <button
                     className="actionBtn"
-
                     style={{ backgroundColor: "rgb(29, 128, 241)" }}
-
-                    style={{
-                      // fontWeight: "bold",
-                      backgroundColor: "rgb(29, 128, 241)",
-                    }}
-
                     onClick={() => handleTrade(position, "buy")}
                   >
                     Buy
                   </button>
                   <button
                     className="actionBtn"
-
                     style={{ backgroundColor: "#f57300" }}
-
-                    style={{
-                      backgroundColor: "#f57300",
-                    }}
-
                     onClick={() => handleTrade(position, "sell")}
                   >
                     Sell

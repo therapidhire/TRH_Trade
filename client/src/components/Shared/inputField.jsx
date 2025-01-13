@@ -17,19 +17,6 @@ const InputField = (props) => {
   } = props;
   return (
     <div>
-      <label htmlFor="email" className={`form-label fw-semibold ${labelStyle}`}>
-         {labelName}
-      </label>
-      <input
-        type={inputType}
-        id={inputId}
-        name={inputName}
-        placeholder={placholder}
-        className="form-control"
-        value={values}
-        onChange={inputHandleChange}
-        // required
-      />
       <Form.Group className={`${labelStyle}`}>
         <Form.Label className=" fw-semibold">{labelName}</Form.Label>
         <Form.Control
