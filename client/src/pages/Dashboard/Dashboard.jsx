@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Table, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axios from "axios";
-import '../Position/Positions.css'
+import "../Position/Positions.css";
+import "../Dashboard/Dashboard.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -22,7 +23,9 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const stockResponse = await axios.get("http://localhost:8080/api/stocks");
+        const stockResponse = await axios.get(
+          "http://localhost:8080/api/stocks"
+        );
         const stockData = stockResponse?.data || [];
         const formattedStocks = stockData.map((stockEntry) => ({
           stockId: stockEntry._id,
@@ -42,13 +45,14 @@ const Dashboard = () => {
 
   // Handle trade actions (buy/sell)
   const handleTrade = async (stock, actionType) => {
-
     console.log("stock in das:-- ", stock);
     try {
-      const response = await axios.get(`http://localhost:8080/api/stocks/${stock.stockId}`);
+      const response = await axios.get(
+        `http://localhost:8080/api/stocks/${stock.stockId}`
+      );
       const stockData = response?.data;
 
-      console.log("Single Stock Details in Dashboard:- ", stockData)
+      console.log("Single Stock Details in Dashboard:- ", stockData);
 
       if (stockData == null) {
         localStorage.setItem(actionType, JSON.stringify(stock));
@@ -140,26 +144,15 @@ const Dashboard = () => {
       <div className="container mt-5">
         <h2 className="text-center mb-4">Stock Market Dashboard</h2>
 
-        <div className="d-flex justify-content-between mb-4">
-          <Form className="w-50">
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Filter by Stock Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter stock name"
-                    value={stockNameFilter}
-                    onChange={(e) => setStockNameFilter(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Form>
-          <div>
-            {/* <strong>Remaining Money:</strong>
-            <p className="text-success">${remainingMoney.toFixed(2)}</p> */}
-          </div>
+        <div className="dashboard-searchbar">
+          <label className="fw-bold">Filter by Stock Name</label>
+
+          <input
+            type="text"
+            placeholder="Enter stock name"
+            value={stockNameFilter}
+            onChange={(e) => setStockNameFilter(e.target.value)}
+          />
         </div>
 
         <Table striped bordered hover responsive>
@@ -169,7 +162,7 @@ const Dashboard = () => {
                 onClick={() => handleSort("symbol")}
                 style={{ cursor: "pointer" }}
               >
-                Symbol {" "}
+                Symbol{" "}
                 {sortConfig.key === "symbol" &&
                   (sortConfig.direction === "ascending" ? "↑" : "↓")}
               </th>
@@ -177,7 +170,7 @@ const Dashboard = () => {
                 onClick={() => handleSort("name")}
                 style={{ cursor: "pointer" }}
               >
-                Stock Name {" "}
+                Stock Name{" "}
                 {sortConfig.key === "name" &&
                   (sortConfig.direction === "ascending" ? "↑" : "↓")}
               </th>
@@ -194,7 +187,7 @@ const Dashboard = () => {
                     className="actionBtn"
                     style={{
                       // fontWeight: "bold",
-                      backgroundColor:"rgb(29, 128, 241)"
+                      backgroundColor: "rgb(29, 128, 241)",
                     }}
                     onClick={() => handleTrade(stock, "buy")}
                   >
@@ -203,7 +196,7 @@ const Dashboard = () => {
                   <button
                     className="actionBtn"
                     style={{
-                      backgroundColor: "#f57300"
+                      backgroundColor: "#f57300",
                     }}
                     onClick={() => handleTrade(stock, "sell")}
                   >
@@ -224,11 +217,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
-
-
-
 
 // import React, { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
@@ -476,4 +464,3 @@ export default Dashboard;
 // };
 
 // export default Dashboard;
-
