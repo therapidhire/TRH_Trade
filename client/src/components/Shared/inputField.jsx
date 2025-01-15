@@ -17,6 +17,7 @@ const InputField = (props) => {
   } = props;
   return (
     <div>
+<<<<<<< HEAD
       {/* <label htmlFor="email" className={`form-label fw-semibold ${labelStyle}`}>
          {labelName}
       </label>
@@ -30,6 +31,8 @@ const InputField = (props) => {
         onChange={inputHandleChange}
         // required
       /> */}
+=======
+>>>>>>> bad1ca07d7f161c3f6a4a4f8bf7ad7a1afe0dc60
       <Form.Group className={`${labelStyle}`}>
         <Form.Label className=" fw-semibold">{labelName}</Form.Label>
         <Form.Control
