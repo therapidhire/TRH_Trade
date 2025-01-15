@@ -9,6 +9,7 @@ import Header from "../../components/Header/Header";
 import { Pagination } from "react-bootstrap";
 import axios from "axios";
 import "./History.css";
+import axiosInstance from "../../components/Axios/interseptor";
 
 import { useAuth } from "../../context/AuthProvider";
 
@@ -41,10 +42,9 @@ const History = () => {
   
 const fetchTransactions = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/stock-transactions/transaction/${userId}`
-      );
-      const transactionsData = response.data;
+
+      const transactionResponse = await axiosInstance.get(`/stock-transactions/transaction/${userId}`)
+      const transactionsData = transactionResponse.data;
 
       const groupedTransactions = transactionsData.reduce(
         (acc, transaction) => {
@@ -59,11 +59,9 @@ const fetchTransactions = useCallback(async () => {
       );
 
       const stockIds = Object.keys(groupedTransactions);
-      const stocksResponse = await axios.post(
-        `http://localhost:8080/api/stocks/getStockByIds`,
-        { stockIds }
-      );
-      const stocksMap = stocksResponse.data.reduce((acc, stock) => {
+
+      const getAllStocks = await axiosInstance.post(`/stocks/getStockByIds`, { stockIds })
+      const stocksMap = getAllStocks.data.reduce((acc, stock) => {
         acc[stock._id] = stock;
         return acc;
       }, {});
