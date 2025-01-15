@@ -5,10 +5,14 @@ import Header from "../../components/Header/Header";
 import axios from "axios";
 import "../Position/Positions.css";
 import "../Holding/Holding.css";
+import axiosInstance from "../../components/Axios/interseptor";
+import { useAuth } from "../../context/AuthProvider";
 
 const Holdings = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
+  const auth = useAuth();
+  // const userId = localStorage.getItem("userId");
+  const userId = auth.user.userId;
   const itemsPerPage = 10;
 
   const columns = [
@@ -43,21 +47,20 @@ const Holdings = () => {
 
   const fetchPositions = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/stock-transactions/transaction/${userId}`
+      const transactionResponse = await axiosInstance.get(
+        `/stock-transactions/transaction/${userId}`
       );
 
-      const filtered = response.data.filter(
+      const filtered = transactionResponse.data.filter(
         (position) =>
           position.CreatedBy === userId && position.TransactionType === "buy"
       );
       const allStockIds = filtered.map((position) => position.StockId);
-
-      const getAllStoks = (
-        await axios.post(`http://localhost:8080/api/stocks/getStockByIds`, {
-          stockIds: allStockIds,
-        })
-      ).data;
+      const getStocksResponce = await axiosInstance.post(
+        `/stocks/getStockByIds`,
+        { stockIds: allStockIds }
+      );
+      const getAllStoks = getStocksResponce.data;
 
       const formattedPositionss = filtered
         ?.map((stock) => {
@@ -140,10 +143,10 @@ const Holdings = () => {
   const handleTrade = useCallback(
     async (stock, actionType) => {
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/stocks/${stock.StockId}`
+        const getStocksResponce = await axiosInstance.get(
+          `/stocks/${stock.StockId}`
         );
-        const stockData = response?.data || stock;
+        const stockData = getStocksResponce?.data || stock;
         localStorage.setItem(actionType, JSON.stringify(stockData));
         navigate(`/trade/${actionType}/${stock.name}`);
       } catch (error) {
