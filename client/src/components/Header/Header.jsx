@@ -85,8 +85,8 @@ const Header = () => {
             if (item.name === "Logout") {
               return (
                 <li
-                  key={item.id}
-                  className={`nav-item ${
+                  key={item.id}                  
+                  className={`nav-item fw-bold fs-3  ${
                     location.pathname === item.path ? "active" : ""
                   }`}
                 >
@@ -95,7 +95,7 @@ const Header = () => {
                     className="nav-link logout-link"
                     onClick={() => auth.logOut()}
                   >
-                    <IoIosLogOut />
+                    <IoIosLogOut className="text-primary" />
                   </Link>
                 </li>
               );

@@ -36,6 +36,34 @@ const getStockById = async (req, res) => {
   }
 };
 
+// Get Stocks by Array of IDs
+const getStocksByIds = async (req, res) => {
+  try {    
+    // Extract stock IDs from the request body
+    const { stockIds } = req.body;
+
+    // Check if stockIds is provided and is an array
+    if (!Array.isArray(stockIds) || stockIds.length === 0) {
+      return res.status(400).json({ message: 'stockIds must be a non-empty array' });
+    }
+
+    // Fetch stocks whose IDs match the provided stockIds
+    const stocks = await Stock.find({ _id: { $in: stockIds } });
+
+    // Check if any stocks were found
+    if (stocks.length === 0) {
+      return res.status(404).json({ message: 'No stocks found for the provided IDs' });
+    }
+
+    // Return the found stocks
+    res.json(stocks);
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Update Stock
 const updateStock = async (req, res) => {
   try {
@@ -93,5 +121,6 @@ module.exports = {
   getStockById,
   updateStock,
   deleteStock,
-  uploadCsv
+  uploadCsv,
+  getStocksByIds
 };
