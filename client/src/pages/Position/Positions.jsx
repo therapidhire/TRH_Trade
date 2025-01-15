@@ -2,15 +2,15 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
-import axios from "axios";
-import '../Position/Positions.css'
+import "../Position/Positions.css";
 import { useAuth } from "../../context/AuthProvider";
+import axiosInstance from "../../components/Axios/interseptor";
 
 const Positions = () => {
   const navigate = useNavigate();
-  const  auth = useAuth();
+  const auth = useAuth();
   // const userId = localStorage.getItem("userId");
-  const userId = auth.user.userId
+  const userId = auth.user.userId;
   const itemsPerPage = 10;
 
   const columns = [
@@ -20,7 +20,7 @@ const Positions = () => {
     "Price",
     "Total Amount",
     "Age",
-    "Actions"
+    "Actions",
   ];
 
   const columnKeys = [
@@ -29,7 +29,7 @@ const Positions = () => {
     "quantity",
     "price",
     "totalPrice",
-    "age"
+    "age",
   ];
 
   const [positions, setPositions] = useState([]);
@@ -45,22 +45,20 @@ const Positions = () => {
 
   const fetchPositions = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/stock-transactions/transaction/${userId}`
+      const transactionResponse = await axiosInstance.get(
+        `/stock-transactions/transaction/${userId}`
       );
 
-      const filtered = response.data.filter(
-        (position) => 
-          position.CreatedBy === userId && 
-          position.TransactionType === "buy"
+      const filtered = transactionResponse.data.filter(
+        (position) =>
+          position.CreatedBy === userId && position.TransactionType === "buy"
       );
 
       const allStockIds = filtered.map((position) => position.StockId);
 
-      const getAllStocks = await axios.post(
-        `http://localhost:8080/api/stocks/getStockByIds`,
-        { stockIds: allStockIds }
-      );
+      const getAllStocks = await axiosInstance.post(`/stocks/getStockByIds`, {
+        stockIds: allStockIds,
+      });
 
       const formattedPositions = filtered
         .map((position) => {
@@ -80,7 +78,7 @@ const Positions = () => {
             quantity: position.Quantity,
             price: position.Price,
             totalPrice: (position.Quantity * position.Price).toFixed(2),
-            age: `${age} days`
+            age: `${age} days`,
           };
         })
         .filter(Boolean);
@@ -142,27 +140,33 @@ const Positions = () => {
 
   const totalPages = Math.ceil(filteredPositions.length / itemsPerPage);
 
-  const handleTrade = useCallback(async (stock, actionType) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8080/api/stocks/${stock.StockId}`
-      );
-      const stockData = response?.data || stock;
-      localStorage.setItem(actionType, JSON.stringify(stockData));
-      navigate(`/trade/${actionType}/${stock.name}`);
-    } catch (error) {
-      console.error(`Error handling ${actionType}:`, error);
-      // Add user-friendly error notification here
-    }
-  }, [navigate]);
+  const handleTrade = useCallback(
+    async (stock, actionType) => {
+      try {
+        const fatchStock = await axiosInstance.get(`/stocks/${stock.StockId}`);
 
-  const handleSort = useCallback((column, index) => {
-    if (index === columns.length - 1) return;
-    setSortConfig((current) => ({
-      column,
-      order: current.column === column && current.order === "asc" ? "desc" : "asc",
-    }));
-  }, [columns.length]);
+        const stockData = fatchStock?.data || stock;
+        localStorage.setItem(actionType, JSON.stringify(stockData));
+        navigate(`/trade/${actionType}/${stock.name}`);
+      } catch (error) {
+        console.error(`Error handling ${actionType}:`, error);
+        // Add user-friendly error notification here
+      }
+    },
+    [navigate]
+  );
+
+  const handleSort = useCallback(
+    (column, index) => {
+      if (index === columns.length - 1) return;
+      setSortConfig((current) => ({
+        column,
+        order:
+          current.column === column && current.order === "asc" ? "desc" : "asc",
+      }));
+    },
+    [columns.length]
+  );
 
   return (
     <>

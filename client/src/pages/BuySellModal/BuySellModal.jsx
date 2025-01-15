@@ -36,7 +36,7 @@ const BuySellModal = () => {
         );
   
         const responseData = stockResponse.data;
-        console.log("Response Data:--", responseData);
+        // console.log("Response Data:--", responseData);
   
         if (!responseData.success) {
           console.warn("Stock not found or other issue:", responseData.message);
