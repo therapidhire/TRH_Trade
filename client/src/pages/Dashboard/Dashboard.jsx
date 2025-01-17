@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Form, Row, Col, Table, Pagination } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import axiosInstance from "../../components/Axios/interseptor";
-// import { toast } from 'react-toastify';
+import { showToast } from '../../components/Toast/index';
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -49,7 +49,7 @@ const Dashboard = () => {
       console.log("stockData", stockData);
       console.log("stock", stock);
       
-      localStorage.setItem(actionType, JSON.stringify(stockData || stock));
+      sessionStorage.setItem(actionType, JSON.stringify(stockData || stock));
       navigate(`/trade/${actionType}/${stock.name}`);
     } catch (error) {
       console.error(`Error handling ${actionType} for stock:`, error);

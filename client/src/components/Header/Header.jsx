@@ -50,7 +50,7 @@ const Header = () => {
   };
 
   return (
-    <header className="dashboard-header shadow p-3 mb-5 bg-white rounded">
+    <header className="dashboard-header shadow p-3 mb-3 bg-white rounded">
       <div className="logo-container">TRH Trade Portal</div>
       <nav className="nav-menu">
         <ul className="nav-list">

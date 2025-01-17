@@ -1,5 +1,7 @@
 import React from "react";
-import "./App.css"
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -13,15 +15,17 @@ import History from "./pages/History/History";
 function App() {
   return (
     <Router>
+        <ToastContainer />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/trade/:action/:stock" element={<BuySellModal />} />
-        <Route path="/holdings" element={<Holding />} /> {/* Added the route for Holding */}
-        <Route path="/positions" element={<Position/>} />
-        <Route path="/profile" element={<Profile/>} />
-        <Route path="/history" element={<History/>} />
+        <Route path="/holdings" element={<Holding />} />{" "}
+        {/* Added the route for Holding */}
+        <Route path="/positions" element={<Position />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/history" element={<History />} />
       </Routes>
     </Router>
   );
