@@ -237,3 +237,30 @@
   font-size: 20px;
   cursor: pointer;
 }
+.error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.cancel-btn {
+  background-color: #000 !important;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  margin-left: 10px;
+}
+
+.action-btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  color: white;
+}
+
+.buy-btn {
+  background-color: #28a745;
+}
+
+.sell-btn {
+  background-color: #dc3545;
+}
